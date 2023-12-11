@@ -1,4 +1,4 @@
-# Good Book Sharing
+# Good Book Sharing Web App
 
 TrustAi website
 
