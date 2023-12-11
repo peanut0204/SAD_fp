@@ -1,6 +1,7 @@
-// src/App.js
+
 import React, { useState } from 'react';
 import NumberInputForm from './components/NumberInputForm';
+import { Link } from 'react-router-dom';
 
 const App = () => {
   const [dataframe, setDataframe] = useState([]);
@@ -19,11 +20,13 @@ const App = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">React, Tailwind CSS, and Flask App</h1>
+    <div className="container mx-auto p-7">
+      <h1 className="text-3xl font-bold mb-4">Home Page</h1>
       <NumberInputForm onSubmit={handleFormSubmit} />
       {/* Display the DataFrame in the frontend */}
       <pre className="mt-4">{JSON.stringify(dataframe, null, 2)}</pre>
+      
+      
     </div>
   );
 };
