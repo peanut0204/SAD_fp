@@ -26,4 +26,4 @@ yarn-error.log*
 .db_password.txt
 
 # virtual environment
-/venv
+venv/
