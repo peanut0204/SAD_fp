@@ -6,9 +6,20 @@ TrustAi website
 
 > backend: Golang, Python
 
+
+## To set up database
+Create ```db_password.txt``` and write your password in the file.
+
+Change database name in ```app.py```
+```
+dbname = <your database name>
+```
+
 ## To start the Website
 
-Go to frontend
+
+
+### Go to frontend
 
 ```
 cd frontend
@@ -17,14 +28,14 @@ cd frontend
 Open the frontend...
 
 ```
-npm run dev
+npm start
 ```
 
 the website runs on http://localhost:3000/
 
 ---
 
-Go to backend
+### Go to backend
 
 ```
 cd backend
@@ -39,6 +50,11 @@ activate venv (for windows)
 
 ```
 .\venv\Scripts\activate.ps1   
+```
+install requirements
+
+```
+pip install -r requirements.txt
 ```
 
 run flask
