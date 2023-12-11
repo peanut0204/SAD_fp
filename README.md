@@ -1,10 +1,8 @@
 # Good Book Sharing
 
-TrustAi website
-
 > frontend: React, Tailwind
 
-> backend: Golang, Python
+> backend: Flask, Python
 
 
 ## To set up database
