@@ -1,34 +1,18 @@
+// src/App.js
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Login from './pages/Login';
+import SearchBook from './pages/SearchBook';
 
-import React, { useState } from 'react';
-import NumberInputForm from './components/NumberInputForm';
-import { Link } from 'react-router-dom';
-
-const App = () => {
-  const [dataframe, setDataframe] = useState([]);
-
-  const handleFormSubmit = async (formData) => {
-    const response = await fetch('http://127.0.0.1:5000/api/generate_dataframe', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData),
-    });
-
-    const result = await response.json();
-    setDataframe(result);
-  };
-
+function App() {
   return (
-    <div className="container mx-auto p-7">
-      <h1 className="text-3xl font-bold mb-4">Home Page</h1>
-      <NumberInputForm onSubmit={handleFormSubmit} />
-      {/* Display the DataFrame in the frontend */}
-      <pre className="mt-4">{JSON.stringify(dataframe, null, 2)}</pre>
-      
-      
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" exact element={<Login />} /> 
+        <Route path="/SearchBook" element={<SearchBook />} />
+      </Routes>
+    </Router>
   );
-};
+}
 
 export default App;
