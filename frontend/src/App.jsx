@@ -16,7 +16,7 @@ function App() {
       <Routes>
         <Route path="/" exact element={<Login />} /> 
         <Route path="/SearchBook/:memberId" element={<SearchBook />} />
-        <Route path="/BookInfo/:memberId" element={<BookInfo />} />
+        <Route path="/BookInfo/:memberId/:ISBN" element={<BookInfo />} />
         <Route path="/AddBook/:memberId" element={<AddBook />} />
         <Route path="/UserPage/:memberId/:otherId" element={<UserPage />} />
         <Route path="/MyPage/:memberId" element={<MyPage />} />
