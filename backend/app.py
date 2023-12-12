@@ -69,6 +69,54 @@ def login():
 	except Exception as e:
 		print("Error during login:", str(e))
 		return jsonify({'success': False, 'message': 'An error occurred during login'}), 500
+	
+@app.route('/api/favoriteBooks/<member_id>', methods=['GET'])
+def get_favorite_books(member_id):
+    try:
+        # 連接到 PostgreSQL
+        psql_conn = psycopg2.connect(f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+        cursor = psql_conn.cursor()
+
+        # 執行 SQL 查詢
+        query = """
+            SELECT b.isbn, b.name, string_agg(a.author_name, '、') AS author_name, p.publisher_name, b.publisher_year, bt.tag_name
+            FROM favorite AS f
+            JOIN book AS b ON b.isbn = f.isbn
+            JOIN authored_by AS ab ON ab.isbn = b.isbn
+            JOIN author AS a ON a.author_id = ab.author_id
+            JOIN publisher AS p ON p.publisher_id = b.publisher_id
+            JOIN book_tag AS bt ON bt.isbn = b.isbn
+            WHERE f.member_id = %s
+			GROUP BY b.isbn, b.name, p.publisher_name, b.publisher_year, bt.tag_name;
+        """
+        cursor.execute(query, (member_id,))
+
+        # 獲取查詢結果
+        query_result = cursor.fetchall()
+
+        # 將查詢結果轉換為 JSON 格式
+        result = [
+            {
+                "id": row[0],
+				"name": row[1],
+                "author": row[2],
+                "publisher": row[3],
+                "pub_year": row[4],
+                "tag": row[5],
+            }
+            for row in query_result
+        ]
+		
+        return jsonify(result)
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': 'Internal Server Error'}), 500
+
+    finally:
+        # 關閉連接
+        if psql_conn:
+            psql_conn.close()
 
 if __name__ == '__main__':
 	app.run(debug=True)
