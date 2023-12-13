@@ -99,6 +99,7 @@ function Login() {
       </div>
       
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+				<p>(For test use)</p>
         <Link to={`/SearchBook/1`}> {/* for test use */}
           <Button variant="outlined" style={{ marginTop: '10px' }}>Go to Search Book</Button>
         </Link>

@@ -84,11 +84,11 @@ def register():
 	gender = data.get('gender')
 	birthday = data.get('birthday')
 	
-  #add some code here
+	#add some code here
 	
-  # or return jsonify({'success': False, 'message': 'Account already registered}), 400
-  # or return jsonify({'success': False, 'message': 'Invalid input fromat'}), 400
-	return jsonify({'success': True, 'message': 'Register success', 'memberId': }), 200
+	# or return jsonify({'success': False, 'message': 'Account already registered}), 400
+	# or return jsonify({'success': False, 'message': 'Invalid input fromat'}), 400
+	return jsonify({'success': True, 'message': 'Register success', 'memberId': 1}), 200
 
 	
 
@@ -140,13 +140,20 @@ def get_favorite_books(member_id):
 		if psql_conn:
 			psql_conn.close()
 
-@app.route('/api/searchbooks', methods=['POST'])
+@app.route('/api/searchbook', methods=['POST'])
 def search_books():
 	data = request.get_json()
 	searchType = data.get('searchType') # values in seachType: all(search title+author), title, author 
 	searchTerm = data.get('searchTerm') #the search input
 	
 	# return a jasonify dataframe with columns: isban, title, author
+	
+	# for test use
+	df=pd.DataFrame(columns=['isbn','title','author'])
+	df.loc[0]=[1,'book1','author1']
+	df.loc[1]=[2,'book2','author2']
+	df.loc[2]=[3,'book3','author3']
+	return df.to_json(orient='records')
 	
 	
 
