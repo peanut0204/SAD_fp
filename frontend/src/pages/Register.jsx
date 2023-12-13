@@ -1,10 +1,120 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Button from '@mui/material/Button';
+import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function Register() {
+  const [account, setAccount] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [gender, setGender] = useState('');
+  const [birthday, setBirthday] = useState('');
+
+	const navigate = useNavigate();
+
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+
+		// Make API call to the backend (replace with your actual API endpoint)
+		const response = await fetch('http://127.0.0.1:5000/api/login', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ account, password, name, nickname, gender, birthday }),
+		});
+
+		// Handle the response
+		const data = await response.json();
+
+		// Check if login is successful
+		if (data.success) {
+			console.log('Login successful');
+			console.log('Member ID:', data.memberId);
+			console.log('Identity:', data.identity);
+			if (data.identity === 'Admin') {
+				navigate(`/AdminPage/${data.memberId}`); 
+			} else {
+				navigate(`/MyPage/${data.memberId}`); 	
+			}
+		} 
+		else {
+			console.log('Login failed');
+			// Handle unsuccessful login (show error message, etc.)
+		}
+  };
   return (
-    <div>
+    <div className="container mx-auto p-7">
     
       <h1 className="text-3xl font-bold mb-4">Register Page</h1>
+      <form onSubmit={handleSubmit}>
+				<label>
+					Account:
+					<input style={{ border: '1px solid black', borderRadius: '4px', padding: '5px', marginLeft:'5px' }}
+						type="text"
+						value={account}
+						onChange={(e) => setAccount(e.target.value)}
+					/>
+					
+				</label>
+				<br />
+				<label >
+					Password:
+					<input style={{ border: '1px solid black', borderRadius: '4px', padding: '5px', marginLeft:'5px', marginTop: '10px' }}
+						type="text"
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+					/>
+				</label>
+        <br />
+        <label >
+					Name:
+					<input style={{ border: '1px solid black', borderRadius: '4px', padding: '5px', marginLeft:'5px', marginTop: '10px' }}
+						type="text"
+						value={name}
+						onChange={(e) => setName(e.target.value)}
+					/>
+				</label>
+        <br />
+        <label >
+					Nickname:
+					<input style={{ border: '1px solid black', borderRadius: '4px', padding: '5px', marginLeft:'5px', marginTop: '10px' }}
+						type="text"
+						value={nickname}
+						onChange={(e) => setNickname(e.target.value)}
+					/>
+				</label>
+        <br />
+        <label >
+					Gender:
+					<input style={{ border: '1px solid black', borderRadius: '4px', padding: '5px', marginLeft:'5px', marginTop: '10px' }}
+						type="text"
+						value={gender}
+						onChange={(e) => setGender(e.target.value)}
+					/>
+				</label>
+        <br />
+        <label >
+					Birthday:
+					<input style={{ border: '1px solid black', borderRadius: '4px', padding: '5px', marginLeft:'5px', marginTop: '10px' }}
+						type="text"
+						value={birthday}
+						onChange={(e) => setBirthday(e.target.value)}
+					/>
+				</label>
+        
+				<br />
+				<Button variant="contained" type="submit" style={{ marginTop: '10px' }}>Register</Button>
+			</form>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <p>Already has an account?</p>
+        <Link to="/">
+          <Button variant="outlined" style={{ marginTop: '10px', marginLeft: '10px' }}>Go to Login</Button>
+        </Link>
+
+      </div>
+      
       
     </div>
   );
