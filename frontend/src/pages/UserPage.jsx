@@ -1,9 +1,9 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
 import { useParams } from 'react-router-dom';
-import FavoriteBook from '../components/MyPage/FavoriteBook';
-import Review from '../components/MyPage/Review';
-import Following from '../components/MyPage/Following';
+import FavoriteBook from '../components/UserPage/FavoriteBook';
+import Review from '../components/UserPage/Review';
+import Following from '../components/UserPage/Following';
 
 function UsePage() {
   const { memberId, otherId } = useParams();
