@@ -147,8 +147,8 @@ def search_books():
 	searchTerm = data.get('searchTerm') #the search input
 	
 	# return a jasonify dataframe with columns: isban, title, author
-	
-	# for test use
+
+	# for example
 	df=pd.DataFrame(columns=['isbn','title','author'])
 	df.loc[0]=[1,'book1','author1']
 	df.loc[1]=[2,'book2','author2']

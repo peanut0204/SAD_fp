@@ -68,27 +68,26 @@ function Login() {
       {/* <NumberInputForm onSubmit={handleFormSubmit} /> */}
       {/* <pre className="mt-4">{JSON.stringify(dataframe, null, 2)}</pre> */}
       <form onSubmit={handleSubmit}>
-        <label>
-          Account:
-          <input style={{ border: '1px solid black', borderRadius: '4px', padding: '5px', marginLeft:'5px' }}
-            type="text"
-            value={account}
-            onChange={(e) => setAccount(e.target.value)}
-          />
-          
-        </label>
-        <br />
-        <label >
-          Password:
-          <input style={{ border: '1px solid black', borderRadius: '4px', padding: '5px', marginLeft:'5px', marginTop: '10px' }}
-            type="text"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </label>
-        <br />
-        <Button variant="contained" type="submit" style={{ marginTop: '10px' }}>Login</Button>
-      </form>
+				<div className="flex flex-col">
+					<label className="flex">
+						<span className="w-20">Account:</span>
+						<input style={{ border: '1px solid black', borderRadius: '4px', padding: '5px' }}
+							type="text"
+							value={account}
+							onChange={(e) => setAccount(e.target.value)}
+						/>
+					</label>
+					<label className="flex mt-2">
+						<span className="w-20">Password:</span>
+						<input style={{ border: '1px solid black', borderRadius: '4px', padding: '5px' }}
+							type="text"
+							value={password}
+							onChange={(e) => setPassword(e.target.value)}
+						/>
+					</label>
+				</div>
+				<Button variant="contained" type="submit" style={{ marginTop: '10px' }}>Login</Button>
+			</form>
       {loginFailed && <p style={{ color: 'red' }}>Login failed</p>}
       
       <div style={{ display: 'flex', alignItems: 'center' }}>
