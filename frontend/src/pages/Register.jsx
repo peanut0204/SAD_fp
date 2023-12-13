@@ -10,6 +10,8 @@ function Register() {
   const [nickname, setNickname] = useState('');
   const [gender, setGender] = useState('');
   const [birthday, setBirthday] = useState('');
+  const [registerFailed, setRegisterFailed] = useState(false);
+  const [register_err_msg, setRegister_err_msg] = useState('');
 
 	const navigate = useNavigate();
 
@@ -30,18 +32,16 @@ function Register() {
 
 		// Check if login is successful
 		if (data.success) {
-			console.log('Login successful');
-			console.log('Member ID:', data.memberId);
-			console.log('Identity:', data.identity);
-			if (data.identity === 'Admin') {
-				navigate(`/AdminPage/${data.memberId}`); 
-			} else {
-				navigate(`/MyPage/${data.memberId}`); 	
-			}
+			console.log('Register successful');
+      console.log('Login Automaticaly');
+			console.log('Member ID:', data.memberId);;
+			
+			navigate(`/MyPage/${data.memberId}`); 				
 		} 
 		else {
-			console.log('Login failed');
-			// Handle unsuccessful login (show error message, etc.)
+      setRegisterFailed(true);
+			console.log(data.message);
+      setRegister_err_msg(data.message);		
 		}
   };
   return (
@@ -103,10 +103,11 @@ function Register() {
 						onChange={(e) => setBirthday(e.target.value)}
 					/>
 				</label>
-        
 				<br />
 				<Button variant="contained" type="submit" style={{ marginTop: '10px' }}>Register</Button>
 			</form>
+      {registerFailed && <p style={{ color: 'red' }}>{register_err_msg}</p>}
+
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <p>Already has an account?</p>
         <Link to="/">

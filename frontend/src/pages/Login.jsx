@@ -21,9 +21,8 @@ function Login() {
   //   setDataframe(result);
   const [account, setAccount] = useState('');
   const [password, setPassword] = useState('');
+	const [loginFailed, setLoginFailed] = useState(false);
   const navigate = useNavigate();
-
-  const [loginFailed, setLoginFailed] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,7 +53,7 @@ function Login() {
     else {
       console.log('Login failed');
       setLoginFailed(true);
-      // Handle unsuccessful login (show error message, etc.)
+      
     }
 
     

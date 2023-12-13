@@ -86,9 +86,9 @@ def register():
 	
   #add some code here
 	
-  # or return jsonify({'success': False, 'message': 'Account already registered'}), 400
+  # or return jsonify({'success': False, 'message': 'Account already registered}), 400
   # or return jsonify({'success': False, 'message': 'Invalid input fromat'}), 400
-	return jsonify({'success': True, 'message': 'Register success'}), 200
+	return jsonify({'success': True, 'message': 'Register success', 'memberId': }), 200
 
 	
 
@@ -139,6 +139,17 @@ def get_favorite_books(member_id):
 		# 關閉連接
 		if psql_conn:
 			psql_conn.close()
+
+@app.route('/api/searchbooks', methods=['POST'])
+def search_books():
+	data = request.get_json()
+	searchType = data.get('searchType') # values in seachType: all(search title+author), title, author 
+	searchTerm = data.get('searchTerm') #the search input
+	
+	# return a jasonify dataframe with columns: isban, title, author
+	
+	
+
 
 if __name__ == '__main__':
 	app.run(debug=True)
