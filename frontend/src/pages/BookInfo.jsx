@@ -6,6 +6,7 @@ import Book from '../components/BookInfo/Book';
 import MyReview from '../components/BookInfo/MyReview';
 import BookReview from '../components/BookInfo/BookReview';
 
+
 function BookInfo() {
 	const { memberId, ISBN } = useParams();
 	const otherId =1; //to be changed to other user's id

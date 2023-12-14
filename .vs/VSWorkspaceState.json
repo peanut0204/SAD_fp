@@ -1,0 +1,13 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\backend",
+    "\\frontend",
+    "\\frontend\\src",
+    "\\frontend\\src\\components",
+    "\\frontend\\src\\components\\MyPage",
+    "\\frontend\\src\\pages"
+  ],
+  "SelectedNode": "\\frontend\\src\\pages\\AddBook.jsx",
+  "PreviewInSolutionExplorer": false
+}
