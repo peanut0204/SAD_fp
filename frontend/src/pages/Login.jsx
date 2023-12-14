@@ -3,7 +3,16 @@ import React, { useState } from 'react';
 // import NumberInputForm from '../components/NumberInputForm';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#5e3f26',
+    },
+
+  },
+});
 
 function Login() {
   // // This is a example for example API
@@ -62,49 +71,56 @@ function Login() {
   
   
   return (
-    <div className="container mx-auto p-7">
-      
-      <h1 className="text-3xl font-bold mb-4">Login Page</h1>
-      {/* <NumberInputForm onSubmit={handleFormSubmit} /> */}
-      {/* <pre className="mt-4">{JSON.stringify(dataframe, null, 2)}</pre> */}
-      <form onSubmit={handleSubmit}>
-				<div className="flex flex-col">
-					<label className="flex">
-						<span className="w-20">Account:</span>
-						<input style={{ border: '1px solid black', borderRadius: '4px', padding: '5px' }}
-							type="text"
-							value={account}
-							onChange={(e) => setAccount(e.target.value)}
-						/>
-					</label>
-					<label className="flex mt-2">
-						<span className="w-20">Password:</span>
-						<input style={{ border: '1px solid black', borderRadius: '4px', padding: '5px' }}
-							type="text"
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-						/>
-					</label>
-				</div>
-				<Button variant="contained" type="submit" style={{ marginTop: '10px' }}>Login</Button>
-			</form>
-      {loginFailed && <p style={{ color: 'red' }}>Login failed</p>}
-      
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <p>No account?</p>
-        <Link to="/Register">
-          <Button variant="outlined" style={{ marginTop: '10px', marginLeft: '10px' }}>Go to Register</Button>
-        </Link>
-      </div>
-      
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-				<p>(For test use)</p>
-        <Link to={`/SearchBook/1`}> {/* for test use */}
-          <Button variant="outlined" style={{ marginTop: '10px' }}>Go to Search Book</Button>
-        </Link>
-      </div>
-    
+
+    <div classname="p-10" style={{ backgroundColor: 'saddlebrown', minHeight: '100vh' , display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#5e3f26' }}>
+      <ThemeProvider theme={theme}>   
+        <div style={{ backgroundColor: 'white', borderRadius: '10px', padding: '50px', width: '30%', marginTop: '50px', marginBottom: '50px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <h1 className="text-5xl font-bold mb-20"  >Login Page</h1>
+          {/* <NumberInputForm onSubmit={handleFormSubmit} /> */}
+          {/* <pre className="mt-4">{JSON.stringify(dataframe, null, 2)}</pre> */}
+          <form onSubmit={handleSubmit}  >
+            <div className="flex flex-col items-center gap-4">
+              <label className="flex">
+                <span className="w-20">Account:</span>
+                <input style={{ border: '1px solid black', borderRadius: '4px', padding: '5px' }}
+                  type="text"
+                  value={account}
+                  onChange={(e) => setAccount(e.target.value)}
+                />
+              </label>
+              <label className="flex mt-2">
+                <span className="w-20">Password:</span>
+                <input style={{ border: '1px solid black', borderRadius: '4px', padding: '5px' }}
+                  type="text"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </label>
+            
+              <Button variant="contained"  type="submit" style={{ marginTop: '30px', width: '120px' }}>Login</Button>
+            </div>          
+          </form>
+          {loginFailed && <p style={{ color: 'red' }}>Login failed</p>}
+          
+          <div style={{ marginTop: '20px', display: 'flex', alignItems: 'center' }}>
+            <p>No account?</p>
+            <Link to="/Register">
+              <Button variant="outlined" style={{ marginTop: '10px', marginLeft: '10px' }}>Go to Register</Button>
+            </Link>
+          </div>
+          
+          
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '50px', backgroundColor: 'white', padding: '20px'}}>
+          <p>(For test use)</p>
+          <Link to={`/SearchBook/1`}> {/* for test use */}
+            <Button variant="outlined" >Go to Search Book</Button>
+          </Link>
+        </div>
+        
+      </ThemeProvider>
     </div>
+
   );
 }
 
