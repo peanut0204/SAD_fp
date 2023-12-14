@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 //import { Link } from 'react-router-dom';
-import {title, content, divLine} from '../../css/MyPage.js';
+import {title, content} from '../../css/MyPage.js';
 //import { useParams } from 'react-router-dom'; // temp
 import { useParams } from 'react-router-dom';
 import FavoriteIcon from '@mui/icons-material/Favorite';

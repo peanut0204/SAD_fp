@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pandas as pd
 import psycopg2
+from datetime import datetime
 
 # Connect to PostgreSQL and fetch data
 with open('db_password.txt', 'r') as file:
@@ -189,6 +190,63 @@ def delete_favorite(member_id, isbn):
     psql_conn.close()
     return jsonify({'message': 'Favorite deleted successfully'})
 	
+# BookInfo/MyReview
+@app.route('/api/myReview/<member_id>/<isbn>', methods=['GET'])
+def get_myReview(member_id, isbn):
+    psql_conn = psycopg2.connect(f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    query = "SELECT star_rating, comment, timestamp FROM review WHERE member_id = %s AND isbn = %s"
+    with psql_conn.cursor() as cursor:
+        cursor.execute(query, (member_id, isbn))
+        result = cursor.fetchone()
+    if result:
+        review_dict = {
+            'star': result[0],
+            'comment': result[1],
+            'time': result[2].isoformat()
+        }
+        psql_conn.close()
+        return jsonify(review_dict), 200
+    else:
+        psql_conn.close()
+        return jsonify(None), 404
+    
+
+@app.route('/api/myReview/<member_id>/<isbn>', methods=['POST'])
+def add_review(member_id, isbn):
+    data = request.get_json()
+    
+    psql_conn = psycopg2.connect(f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    query = "INSERT INTO review (member_id, isbn, star_rating, comment, timestamp) VALUES (%s, %s, %s, %s, %s)"
+    with psql_conn.cursor() as cursor:
+        cursor.execute(query, (member_id, isbn, data['rating'], data['comment'], datetime.now().strftime("%Y-%m-%d")))
+    psql_conn.commit()
+    
+    psql_conn.close()
+    return jsonify({'message': 'Review added successfully'}), 201
+
+@app.route('/api/myReview/<member_id>/<isbn>', methods=['PUT'])
+def update_review(member_id, isbn):
+    data = request.get_json()
+    
+    psql_conn = psycopg2.connect(f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    query = "UPDATE review SET star_rating = %s, comment = %s, timestamp = %s WHERE member_id = %s AND isbn = %s"
+    with psql_conn.cursor() as cursor:
+        cursor.execute(query, (data['rating'], data['comment'], datetime.now().strftime("%Y-%m-%d"), member_id, isbn))
+    psql_conn.commit()
+    
+    psql_conn.close()
+    return jsonify({'message': 'Review updated successfully'}), 200
+
+@app.route('/api/myReview/<member_id>/<isbn>', methods=['DELETE'])
+def delete_review(member_id, isbn):
+    psql_conn = psycopg2.connect(f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    query = "DELETE FROM review WHERE member_id = %s AND isbn = %s"
+    with psql_conn.cursor() as cursor:
+        cursor.execute(query, (member_id, isbn))
+    psql_conn.commit()
+
+    psql_conn.close()
+    return jsonify({'message': 'Review deleted successfully'})
 
 
 if __name__ == '__main__':

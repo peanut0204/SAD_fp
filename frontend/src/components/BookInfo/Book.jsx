@@ -3,8 +3,6 @@ import React, {useState, useEffect} from 'react';
 import {title, content, divLine} from '../../css/MyPage.js';
 //import { useParams } from 'react-router-dom'; // temp
 import { useParams } from 'react-router-dom';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 
 
 function FavoriteBook() {

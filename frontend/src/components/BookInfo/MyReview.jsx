@@ -7,6 +7,8 @@ import { brownTheme } from '../../css/MyPage.js';
 import { Button } from '@mui/material';
 import React, {useState, useEffect} from 'react';
 import { TextField } from '@mui/material';
+import Slider from '@mui/material/Slider';
+import Typography from '@mui/material/Typography';
 
 function Review() {
   const { memberId, ISBN } = useParams();
@@ -56,11 +58,12 @@ function Review() {
   };
 
   const [editing, setEditing] = useState(false);
+  const [editedRating, setEditedRating] = useState(false);
   const [editedComment, setEditedComment] = useState('');
-  
 
   const handleEditReview = () => {
     setEditing(true);
+    setEditedRating(review.star);
     setEditedComment(review.comment);
   };
 
@@ -71,7 +74,7 @@ function Review() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ comment: editedComment }),
+      body: JSON.stringify({ rating: editedRating, comment: editedComment }),
     })
       .then(response => {
         if (response.ok) {
@@ -95,6 +98,7 @@ function Review() {
 
   const [newRating, setNewRating] = useState('');
   const [newComment, setNewComment] = useState('');
+
   const handleAddReview = () => {
     // 向後端傳送新增評論的請求
     fetch(`http://127.0.0.1:5000/api/myReview/${memberId}/${ISBN}`, {
@@ -105,9 +109,17 @@ function Review() {
       body: JSON.stringify({ rating: newRating, comment: newComment }),
     })
       .then((response) => response.json())
-      .then((data) => setReview(data))
+      .then((data) => {
+        setReview(data);
+        // 在新增評論成功後，重新發起 GET 請求以獲取最新的評論數據
+        fetch(`http://127.0.0.1:5000/api/myReview/${memberId}/${ISBN}`)
+          .then((response) => response.json())
+          .then((data) => setReview(data))
+          .catch((error) => console.error('Error fetching review:', error));
+      })
       .catch((error) => console.error('Error adding review:', error));
   };
+  
 
   return(
       <div style={content}>
@@ -121,65 +133,86 @@ function Review() {
           <>
             {editing ? (
             <>
-              <TextField
-                label="編輯評論"
-                multiline
-                rows={4}
-                variant="outlined"
-                value={editedComment}
-                onChange={e => setEditedComment(e.target.value)}
-              />
-              <Button size="small" variant="contained" color="primary" onClick={handleConfirmEdit}>
-                確認
-              </Button>
+              <div>
+                <Typography id="discrete-slider" gutterBottom>
+                  編輯星等：{getStar(editedRating)} ({editedRating})
+                </Typography>
+                <Slider
+                  value={editedRating}
+                  onChange={e => setEditedRating(e.target.value)}
+                  valueLabelDisplay="auto"
+                  step={1}
+                  marks
+                  min={1}
+                  max={5}
+                  aria-labelledby="discrete-slider"
+                  style={{ width: '20%' }}  
+                />
+              </div>
+              <div>
+                <TextField
+                  label="編輯評論"
+                  multiline
+                  rows={4}
+                  variant="outlined"
+                  value={editedComment}
+                  onChange={e => setEditedComment(e.target.value)}
+                />
+              </div>
+              <div>
+                <Button size="small" variant="contained" color="primary" onClick={handleConfirmEdit}>
+                  確認
+                </Button>
+              </div>
             </>
           ) : (
             <>
               <b>評等｜</b> {getStar(review.star)} ({review.star}) <br />
               <b>評論｜</b> {review.comment} <br />
               <b>時間戳記｜</b> {review.time} <br />
-              <Button size="small" variant="contained" onClick={handleEditReview}>
+              <Button size="small" variant="contained" onClick={handleEditReview} style={{margin: '0 5px'}}>
                 修改評論
               </Button>
-              <Button size="small" variant="contained" color="secondary" onClick={handleDeleteReview}>
+              <Button size="small" variant="contained" color="secondary" onClick={handleDeleteReview} style={{margin: '0 5px'}}>
                 刪除評論
               </Button>
             </>
           )}
-            {/* 
-            <b>評等｜</b> {getStar(review.star)} ({review.star}) <br />
-            <b>評論｜</b> {review.comment} <br />
-            <b>時間戳記｜</b> {review.time} <br />
-            
-            <>
-              <Button size="small" variant="contained">修改評論</Button>
-              <Button size="small" variant="contained" color="secondary" onClick={handleDeleteReview}>
-                刪除評論
-              </Button>
-            </>
-            */}
           </>
         ) : (
           // 如果評論不存在
           <>
-            <p>目前還沒有評論</p>
-            <TextField
-              label="星等"
-              variant="outlined"
-              value={newRating}
-              onChange={(e) => setNewRating(e.target.value)}
-            />
-            <TextField
-              label="評論"
-              multiline
-              rows={4}
-              variant="outlined"
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-            />
-            <Button size="small" variant="contained" onClick={handleAddReview}>
-              新增評論
-            </Button>
+            <p>目前還沒有評論</p><br />
+            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '20%', margin: '0 10px' }}>
+                <Typography id="discrete-slider" gutterBottom>
+                  編輯星等：{getStar(newRating)} ({newRating})
+                </Typography>
+                <Slider
+                  value={newRating}
+                  onChange={(e) => setNewRating(e.target.value)}
+                  valueLabelDisplay="auto"
+                  step={1}
+                  marks
+                  min={1}
+                  max={5}
+                  aria-labelledby="discrete-slider"
+                  style={{ width: '100%' }}  
+                />
+              </div>
+              <TextField
+                label="評論"
+                multiline
+                rows={4}
+                variant="outlined"
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                style={{ margin: '0 10px' }}
+              />
+              <Button size="small" variant="contained" onClick={handleAddReview}>
+                新增評論
+              </Button>
+            </div>
           </>
         )}
         
