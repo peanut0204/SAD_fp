@@ -13,7 +13,7 @@ function FavoriteBook() {
   // 需要後端的 @app.route('/api/bookInfo/<ISBN>', methods=['GET'])
   
   const [book, setBook] = useState({
-    isbn: 125, name: '測試範例書名', avgStar: '3.2', favorite: '1', author: '作者名稱', publisher: '出版商名稱', pub_year: '2020', tag: '標籤', summary: '這是一個大綱啦', 
+    isbn: 125, name: '測試範例書名', avgStar: '3.2', author: '作者名稱', publisher: '出版商名稱', pub_year: '2020', tag: '標籤', summary: '這是一個大綱啦', 
 });
   
   useEffect(() => {
@@ -27,7 +27,7 @@ function FavoriteBook() {
   // 沒後端的話，暫時先這樣搞
   /*
   const book = {
-      isbn: 125, name: '書名', avgStar: '3.2', favorite: '1', author: '作者名稱', publisher: '出版商名稱', pub_year: '2020', tag: '標籤', summary: '這是一個大綱啦', 
+      isbn: 125, name: '書名', avgStar: '3.2', author: '作者名稱', publisher: '出版商名稱', pub_year: '2020', tag: '標籤', summary: '這是一個大綱啦', 
   };
   */
 
@@ -52,43 +52,6 @@ function FavoriteBook() {
     return stars;
   };
 
-  const handleFavoriteToggle = () => {
-    // Assuming your API endpoint for updating favorites is something like:
-    const apiUrl = `http://127.0.0.1:5000/api/favorite/${memberId}/${ISBN}`;
-
-    // Update the local state optimistically
-    setBook(prevBook => ({
-      ...prevBook,
-      favorite: prevBook.favorite === '1' ? '0' : '1',
-    }));
-
-    // Send a request to the server to update the favorite status
-    fetch(apiUrl, {
-      method: 'POST', // or 'PUT'
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        isbn: ISBN,
-        favorite: book.favorite === '1' ? '0' : '1',
-      }),
-    })
-      .then(response => response.json())
-      .then(data => {
-        // Handle the response if needed
-        console.log('Favorite status updated successfully', data);
-      })
-      .catch(error => {
-        console.error('Error updating favorite status:', error);
-        // Revert the local state if there is an error
-        setBook(prevBook => ({
-          ...prevBook,
-          favorite: prevBook.favorite === '1' ? '0' : '1',
-        }));
-      });
-  };
-
-
   return(
     <div style={content}>
       <h2 style={title}>{book.name}</h2>
@@ -96,11 +59,6 @@ function FavoriteBook() {
       <div style={divLine}/>
       <div style={{ textAlign: 'center' }}>
         <h2 style={title}>評等｜{getStarRating(book.avgStar)} ({book.avgStar})</h2>
-        <h2 style={title}>我的最愛｜
-          <button onClick={handleFavoriteToggle}>
-            {book.favorite === '1' ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-          </button>
-        </h2>
         <p><b>作者名稱｜</b>{book.author}</p>
         <p><b>出版商名稱｜</b>{book.publisher}</p>
         <p><b>出版年｜</b>{book.pub_year}</p>

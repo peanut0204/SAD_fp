@@ -154,7 +154,40 @@ def search_books():
 	df.loc[1]=[2,'book2','author2']
 	df.loc[2]=[3,'book3','author3']
 	return df.to_json(orient='records')
+
+# BookInfo/Favorite
+@app.route('/api/favorite/<member_id>/<isbn>', methods=['GET'])
+def get_favorite(member_id, isbn):
+    psql_conn = psycopg2.connect(f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    query = "SELECT * FROM favorite WHERE member_id = %s AND isbn = %s"
+    with psql_conn.cursor() as cursor:
+        cursor.execute(query, (member_id, isbn))
+        result = cursor.fetchone()
 	
+    psql_conn.close()
+    return jsonify({'found': result is not None})
+
+@app.route('/api/favorite/<member_id>/<isbn>', methods=['POST'])
+def add_favorite(member_id, isbn):
+    psql_conn = psycopg2.connect(f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    query = "INSERT INTO favorite (member_id, isbn) VALUES (%s, %s)"
+    with psql_conn.cursor() as cursor:
+        cursor.execute(query, (member_id, isbn))
+    psql_conn.commit()
+    
+    psql_conn.close()
+    return jsonify({'message': 'Favorite added successfully'})
+
+@app.route('/api/favorite/<member_id>/<isbn>', methods=['DELETE'])
+def delete_favorite(member_id, isbn):
+    psql_conn = psycopg2.connect(f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    query = "DELETE FROM favorite WHERE member_id = %s AND isbn = %s"
+    with psql_conn.cursor() as cursor:
+        cursor.execute(query, (member_id, isbn))
+    psql_conn.commit()
+
+    psql_conn.close()
+    return jsonify({'message': 'Favorite deleted successfully'})
 	
 
 

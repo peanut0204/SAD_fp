@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar';
 import { Link, useParams } from 'react-router-dom';
 import Button from '@mui/material/Button'; //a prettier button
 import Book from '../components/BookInfo/Book';
+import Favorite from '../components/BookInfo/Favorite';
 import MyReview from '../components/BookInfo/MyReview';
 import BookReview from '../components/BookInfo/BookReview';
 
@@ -23,6 +24,9 @@ function BookInfo() {
 
 			<div>
 				<Book />
+			</div>
+			<div>
+				<Favorite />
 			</div>
 			<div>
 				<MyReview />
