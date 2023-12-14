@@ -7,7 +7,7 @@ import { brownTheme } from '../../css/MyPage.js';
 import { Button } from '@mui/material';
 import React, {useState, useEffect} from 'react';
 import { TextField } from '@mui/material';
-import Slider from '@mui/material/Slider';
+import Rating from '@mui/material/Rating';
 import Typography from '@mui/material/Typography';
 
 function Review() {
@@ -135,18 +135,12 @@ function Review() {
             <>
               <div>
                 <Typography id="discrete-slider" gutterBottom>
-                  編輯星等：{getStar(editedRating)} ({editedRating})
+                  編輯星等：({editedRating})
                 </Typography>
-                <Slider
+                <Rating
+                  name="simple-controlled"
                   value={editedRating}
                   onChange={e => setEditedRating(e.target.value)}
-                  valueLabelDisplay="auto"
-                  step={1}
-                  marks
-                  min={1}
-                  max={5}
-                  aria-labelledby="discrete-slider"
-                  style={{ width: '20%' }}  
                 />
               </div>
               <div>
@@ -186,18 +180,12 @@ function Review() {
             <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
               <div style={{ width: '20%', margin: '0 10px' }}>
                 <Typography id="discrete-slider" gutterBottom>
-                  編輯星等：{getStar(newRating)} ({newRating})
+                  編輯星等：({newRating})
                 </Typography>
-                <Slider
+                <Rating
+                  name="simple-controlled"
                   value={newRating}
-                  onChange={(e) => setNewRating(e.target.value)}
-                  valueLabelDisplay="auto"
-                  step={1}
-                  marks
-                  min={1}
-                  max={5}
-                  aria-labelledby="discrete-slider"
-                  style={{ width: '100%' }}  
+                  onChange={e => setNewRating(e.target.value)}
                 />
               </div>
               <TextField
