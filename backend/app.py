@@ -92,7 +92,7 @@ def register():
 	return jsonify({'success': True, 'message': 'Register success', 'memberId': 1}), 200
 
 	
-
+# MyInfo/Favorite
 @app.route('/api/favoriteBooks/<member_id>', methods=['GET'])
 def get_favorite_books(member_id):
 	try:
@@ -405,6 +405,79 @@ def get_followings(member_id):
 #         return jsonify({'error': 'Internal Server Error'}), 500
 
 
+# MyPage/MyInfo
+@app.route('/api/myInfo/<member_id>', methods=['GET'])
+def get_myInfo(member_id):
+    psql_conn = psycopg2.connect(f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    query = "select account, name, nickname, gender, birthday from member where member_id = %s"
+    with psql_conn.cursor() as cursor:
+        cursor.execute(query, (member_id,))
+        result = cursor.fetchone()
+    if result:
+        myInfo_dict = {
+            'account': result[0],
+            'name': result[1],
+            'nickname': result[2],
+            'gender': result[3],
+            'birthday': result[4].isoformat(),
+        }
+        psql_conn.close()
+        return jsonify(myInfo_dict), 200
+    else:
+        psql_conn.close()
+        return jsonify(None), 404
+
+# UserPage/UserInfo
+@app.route('/api/userInfo/<other_id>', methods=['GET'])
+def get_userInfo(other_id):
+    psql_conn = psycopg2.connect(f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    query = "select nickname from member where member_id = %s"
+    with psql_conn.cursor() as cursor:
+        cursor.execute(query, (other_id,))
+        result = cursor.fetchone()
+    if result:
+        userInfo_dict = {
+            'nickname': result[0],
+        }
+        psql_conn.close()
+        return jsonify(userInfo_dict), 200
+    else:
+        psql_conn.close()
+        return jsonify(None), 404
+
+# UserPage/Follow
+@app.route('/api/follow/<member_id>/<other_id>', methods=['GET'])
+def get_follow(member_id, other_id):
+    psql_conn = psycopg2.connect(f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    query = "SELECT * FROM follow WHERE member_id = %s AND following_mid = %s"
+    with psql_conn.cursor() as cursor:
+        cursor.execute(query, (member_id, other_id))
+        result = cursor.fetchone()
+	
+    psql_conn.close()
+    return jsonify({'found': result is not None})
+
+@app.route('/api/follow/<member_id>/<other_id>', methods=['POST'])
+def add_follow(member_id, other_id):
+    psql_conn = psycopg2.connect(f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    query = "INSERT INTO follow (member_id, following_mid) VALUES (%s, %s)"
+    with psql_conn.cursor() as cursor:
+        cursor.execute(query, (member_id, other_id))
+    psql_conn.commit()
+    
+    psql_conn.close()
+    return jsonify({'message': 'Follow added successfully'})
+
+@app.route('/api/follow/<member_id>/<other_id>', methods=['DELETE'])
+def delete_follow(member_id, other_id):
+    psql_conn = psycopg2.connect(f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    query = "DELETE FROM follow WHERE member_id = %s AND following_mid = %s"
+    with psql_conn.cursor() as cursor:
+        cursor.execute(query, (member_id, other_id))
+    psql_conn.commit()
+
+    psql_conn.close()
+    return jsonify({'message': 'Follow deleted successfully'})
 
 
 if __name__ == '__main__':

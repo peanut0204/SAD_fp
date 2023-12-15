@@ -43,7 +43,7 @@ function Review() {
          <h1 style={title}> check Member_id = {memberId} </h1>
          <div style={divLine}/>
          <div>
-           <ReviewCard reviews={reviews} />
+           <ReviewCard reviews={reviews} memberId={memberId} />
          </div>
          
       </div>

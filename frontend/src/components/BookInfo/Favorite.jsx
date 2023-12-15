@@ -1,17 +1,18 @@
 import React, {useState, useEffect} from 'react';
 //import { Link } from 'react-router-dom';
-import {title, content} from '../../css/MyPage.js';
+import {title, content, divLine} from '../../css/MyPage.js';
 //import { useParams } from 'react-router-dom'; // temp
 import { useParams } from 'react-router-dom';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
 
 function FavoriteBook() {
   const { memberId, ISBN } = useParams();  
   
   const [favorite, setFavorite] = useState();
-
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -69,15 +70,16 @@ function FavoriteBook() {
     <div style={content}>
       <h1 style={title}> check Member_id = {memberId}, ISBN = {ISBN} </h1>
       <div style={{ textAlign: 'center' }}>
-        <h2 style={title}>我的最愛｜
-          <button onClick={handleFavoriteClick}>
-          {favorite ? (
-            <FavoriteIcon />
-          ) : (
-            <FavoriteBorderIcon />
-          )}
-          </button>
-        </h2>
+        <h2 style={title}>我的最愛</h2>
+        <div style={divLine}/>
+        
+        <IconButton onClick={handleFavoriteClick} color={favorite ? 'error' : 'default'}>
+          {favorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+        </IconButton>
+        <Typography variant="body2" color="textSecondary">
+          {favorite ? '已加入我的最愛' : '加入我的最愛'}
+        </Typography>
+        
       </div>
     </div>
   );

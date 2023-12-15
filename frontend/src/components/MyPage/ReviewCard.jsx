@@ -11,7 +11,7 @@ import { Card, CardContent, Typography, Button, CardActions } from '@mui/materia
 import { Link } from 'react-router-dom';
 
 // 每頁有 5 個，每 5 個排一列
-export default function ReviewCard({ reviews }) {
+export default function ReviewCard({ reviews, memberId }) {
   const pageSize = 1; // 每頁顯示的卡片數量
   const [currentPage, setCurrentPage] = useState(0); // 當前頁碼
 
@@ -73,12 +73,17 @@ export default function ReviewCard({ reviews }) {
                     </Typography>
                   </CardContent>
                   <CardActions style={{ justifyContent: 'center', marginBottom: 10 }}>
+                    <Link to={`/BookInfo/${memberId}/${review.id}`} style={{ textDecoration: 'none' }}>
+                      <Button size="small" variant="contained">修改/刪除我的書籍評論</Button>
+                    </Link>
+                    {/* 
                     <Link href={`/reviews/reviewsInfo?a_id=${review.id}`} style={{ textDecoration: 'none' }}>
                       <Button size="small" variant="contained">修改評論</Button>
                     </Link>
                     <Link href={`/reviews/reviewsInfo?a_id=${review.id}`} style={{ textDecoration: 'none' }}>
-                      <Button size="small" variant="contained">刪除評論</Button>
+                      <Button size="small" variant="contained" color="secondary" >刪除評論</Button>
                     </Link>
+                    */}
                   </CardActions>
                 </Card>
               ))}

@@ -3,7 +3,7 @@ import React, {useState, useEffect} from 'react';
 import {title, content, divLine} from '../../css/MyPage.js';
 import FavoriteBookCard from './FavoriteBookCard.jsx';
 //import { useParams } from 'react-router-dom'; // temp
-import {useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 function FavoriteBook() {
   const { memberId } = useParams();
