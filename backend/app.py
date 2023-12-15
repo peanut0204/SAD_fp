@@ -7,7 +7,7 @@ from datetime import datetime
 # Connect to PostgreSQL and fetch data
 with open('db_password.txt', 'r') as file:
 	db_password = file.read().strip()
-dbname = 'dbms_fp'	
+dbname = 'DBMS_new'
 
 
 app = Flask(__name__)
@@ -247,6 +247,93 @@ def delete_review(member_id, isbn):
 
     psql_conn.close()
     return jsonify({'message': 'Review deleted successfully'})
+
+#george_get_followings
+@app.route('/api/followings/<member_id>', methods=['GET'])
+def get_followings(member_id):
+    try:
+        # 建立與 PostgreSQL 資料庫的連線
+        psql_conn = psycopg2.connect(f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+        query = "SELECT m.member_id, m.nickname FROM follow AS f JOIN member AS m ON m.member_id = f.following_mid WHERE f.member_id = %s"
+        with psql_conn.cursor() as cursor:
+            cursor.execute(query, (member_id,))
+            results = cursor.fetchall()
+
+        # 格式化查詢結果為 JSON
+        followings_list = [{
+            'id': row[0],
+            'nickname': row[1]
+        } for row in results]
+
+        return jsonify(followings_list), 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': 'Internal Server Error'}), 500
+
+    finally:
+        # 關閉資料庫連線
+        if psql_conn:
+            psql_conn.close()
+
+# @app.route('/api/addbook', methods=['POST'])
+# def add_book():
+#     try:
+#         # 取得從前端送來的 JSON 資料
+#         data = request.get_json()
+
+#         # 解析 JSON 資料中的書籍資訊
+#         isbn = data.get('isbn')
+#         title = data.get('title')
+#         author = data.get('author')
+#         publisher = data.get('publisher')
+
+#         # 在此可將收到的書籍資料做進一步處理，例如寫入資料庫或回應特定訊息給使用者
+#         # 請注意：這僅是一個示範，實際上你需要將資料儲存至資料庫或適當的儲存媒介
+
+#         # 回應使用者所送出的新增書籍資料
+#         return jsonify({
+#             'message': 'Book information received and processed successfully'
+#         }), 201  # 201 代表資源已經被創建
+
+#     except Exception as e:
+#         print(f"Error: {e}")
+#         return jsonify({'error': 'Internal Server Error'}), 500
+
+# @app.route('/api/addbook', methods=['POST'])
+# def add_book():
+#     try:
+#         # 取得從前端送來的 JSON 資料
+#         data = request.get_json()
+
+#         # 解析 JSON 資料中的書籍資訊
+#         isbn = data.get('isbn')
+#         title = data.get('title')
+#         author = data.get('author')
+#         publisher = data.get('publisher')
+
+#         # 連接到 PostgreSQL 資料庫
+#         psql_conn = psycopg2.connect(f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+#         cursor = psql_conn.cursor()
+
+#         # 建立 SQL INSERT 指令，將資料插入到 books 表格中
+#         insert_query = "INSERT INTO request_book (isbn, title, author, publisher) VALUES (%s, %s, %s, %s)"
+#         cursor.execute(insert_query, (isbn, title, author, publisher))
+
+#         # 提交執行 SQL 指令
+#         psql_conn.commit()
+
+#         # 關閉資料庫連線
+#         psql_conn.close()
+
+#         # 回應使用者新增書籍成功的訊息
+#         return jsonify({'message': 'Book information added successfully'}), 201  # 201 代表資源已經被創建
+
+#     except Exception as e:
+#         print(f"Error: {e}")
+#         return jsonify({'error': 'Internal Server Error'}), 500
+
+
 
 
 if __name__ == '__main__':

@@ -22,21 +22,21 @@ function AddBook() {
         }));
     };
 
- /*   //*測試
-   
+ 
+   /*
   const handleSubmit = (e) => {
       e.preventDefault();
       // 将用户输入的书籍信息保存在 submittedBookInfo 中
       setSubmittedBookInfo(bookInfo);
-  };*/
-  
+  }
+  */
 
     //將訊息傳送到後端
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             // 发送书籍信息到后端
-            const response = await fetch('/api/addBook', {
+            const response = await fetch('http://127.0.0.1:5000/api/addBook', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
