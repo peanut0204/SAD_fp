@@ -10,9 +10,7 @@ function FavoriteBook() {
 
   // 需要後端的 @app.route('/api/bookInfo/<ISBN>', methods=['GET'])
   
-  const [book, setBook] = useState({
-    isbn: 125, name: '測試範例書名', avgStar: '3.2', author: '作者名稱', publisher: '出版商名稱', pub_year: '2020', tag: '標籤', summary: '這是一個大綱啦', 
-});
+  const [book, setBook] = useState({});
   
   useEffect(() => {
     fetch(`http://127.0.0.1:5000/api/bookInfo/${ISBN}`) // call API

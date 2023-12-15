@@ -9,7 +9,7 @@ function FavoriteBook() {
   const { memberId, otherId } = useParams();
 
   // 需要後端的 @app.route('/api/favoriteBooks/<member_id>', methods=['GET'])
-  /*
+  
   const [books, setBooks] = useState([]);
   useEffect(() => {
     fetch(`http://127.0.0.1:5000/api/favoriteBooks/${otherId}`) // call API
@@ -17,7 +17,7 @@ function FavoriteBook() {
       .then(data => setBooks(data))
       .catch(error => console.error('Error fetching followings:', error));
   }, [otherId]); 
-*/
+
   // 另外一種寫法
   /*
   const [books, setBooks] = useState([]);
@@ -41,7 +41,7 @@ function FavoriteBook() {
 */
   
   // 沒後端的話，暫時先這樣搞
-  
+  /*
   const books = [
       { id: 125, name: '書名1', author: '作者名稱', publisher: '出版商名稱', pub_year: '2020', tag: '標籤'}, 
       { id: 53, name: '書名2', author: '作者名稱', publisher: '出版商名稱', pub_year: '2020', tag: '標籤'}, 
@@ -50,7 +50,7 @@ function FavoriteBook() {
       { id: 51, name: '書名5', author: '作者名稱', publisher: '出版商名稱', pub_year: '2020', tag: '標籤'}, 
       { id: 215, name: '書名6', author: '作者名稱', publisher: '出版商名稱', pub_year: '2020', tag: '標籤'}, 
   ];
-
+*/
   return(
     <div style={content}>
       <h2 style={title}>喜愛書籍</h2>

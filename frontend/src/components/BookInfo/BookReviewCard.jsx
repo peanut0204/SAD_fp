@@ -10,9 +10,9 @@ import { Card, CardContent, Typography, Button, CardActions } from '@mui/materia
 //import Link from 'next/link';
 import { Link } from 'react-router-dom';
 
-// 每頁有 5 個，每 5 個排一列
+// 每頁有 6 個，每 3 個排一列
 export default function ReviewCard({ reviews, memberId }) {
-  const pageSize = 1; // 每頁顯示的卡片數量
+  const pageSize = 6; // 每頁顯示的卡片數量
   const [currentPage, setCurrentPage] = useState(0); // 當前頁碼
 
   // const defaultTheme = createTheme(); // default theme
@@ -35,7 +35,7 @@ export default function ReviewCard({ reviews, memberId }) {
   const endIndex = startIndex + pageSize;
   const visibleReviews = reviews.slice(startIndex, endIndex);
   const groups = visibleReviews.reduce((acc, curr, i) => {
-    const groupIndex = Math.floor(i / 1); // 每一列有 1 個
+    const groupIndex = Math.floor(i / 3); // 每一列有 3 個
     if (!acc[groupIndex]) {
       acc[groupIndex] = [];
     }

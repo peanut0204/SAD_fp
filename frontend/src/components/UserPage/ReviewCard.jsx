@@ -10,7 +10,7 @@ import { Card, CardContent, Typography, Button, CardActions } from '@mui/materia
 //import Link from 'next/link';
 import { Link } from 'react-router-dom';
 
-// 每頁有 5 個，每 5 個排一列
+// 每頁有 1 個，每 1 個排一列
 export default function ReviewCard({ reviews }) {
   const pageSize = 1; // 每頁顯示的卡片數量
   const [currentPage, setCurrentPage] = useState(0); // 當前頁碼

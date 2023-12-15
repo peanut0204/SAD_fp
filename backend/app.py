@@ -7,7 +7,7 @@ from datetime import datetime
 # Connect to PostgreSQL and fetch data
 with open('db_password.txt', 'r') as file:
 	db_password = file.read().strip()
-dbname = 'DBMS_new'
+dbname = 'bula'
 
 
 app = Flask(__name__)
@@ -156,6 +156,47 @@ def search_books():
 	df.loc[2]=[3,'book3','author3']
 	return df.to_json(orient='records')
 
+
+# BookInfo/Book
+@app.route('/api/bookInfo/<isbn>', methods=['GET'])
+def get_bookInfo(isbn):
+    psql_conn = psycopg2.connect(f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    query = """
+        SELECT b.isbn, b.name, s.avg_rating, string_agg(a.author_name, '、') AS author_name, p.publisher_name, b.publisher_year, bt.tag_name, b.Summary 
+        FROM book AS b
+        JOIN authored_by AS ab ON ab.isbn = b.isbn
+        JOIN author AS a ON a.author_id = ab.author_id
+        JOIN publisher AS p ON p.publisher_id = b.publisher_id
+        JOIN book_tag AS bt ON bt.isbn = b.isbn
+        JOIN (
+            SELECT r.isbn, CAST(AVG(r.star_rating) AS FLOAT) AS avg_rating FROM review AS r
+            JOIN book AS b ON b.isbn = r.isbn
+            WHERE b.isbn = %s
+            GROUP BY r.isbn
+        ) AS s ON s.isbn = b.isbn
+        GROUP BY b.isbn, b.name, s.avg_rating, p.publisher_name, b.publisher_year, bt.tag_name, b.summary;
+    """
+    with psql_conn.cursor() as cursor:
+        cursor.execute(query, (isbn, ))
+        result = cursor.fetchone()
+    if result:
+        book_dict = {
+            'isbn': result[0],
+            'name': result[1],
+            'avgStar': result[2],
+            'author': result[3],
+            'publisher': result[4],
+            'pub_year': result[5],
+            'tag': result[6],
+            'summary': result[7],
+        }
+        psql_conn.close()
+        return jsonify(book_dict), 200
+    else:
+        psql_conn.close()
+        return jsonify(None), 404
+    
+
 # BookInfo/Favorite
 @app.route('/api/favorite/<member_id>/<isbn>', methods=['GET'])
 def get_favorite(member_id, isbn):
@@ -247,6 +288,36 @@ def delete_review(member_id, isbn):
 
     psql_conn.close()
     return jsonify({'message': 'Review deleted successfully'})
+
+# BookInfo/BookReview
+@app.route('/api/bookReview/<member_id>/<isbn>', methods=['GET'])
+def get_bookReview(member_id, isbn):
+    psql_conn = psycopg2.connect(f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    query = """
+        select r.member_id, m.nickname, star_rating, comment, timestamp from review as r
+        join member as m on m.member_id = r.member_id
+        where m.member_id <> %s and isbn = %s
+    """
+    with psql_conn.cursor() as cursor:
+        cursor.execute(query, (member_id, isbn))
+        result = cursor.fetchall()
+    if result:
+        review_dict = [
+             {
+                'id': row[0],
+                'nickname': row[1],
+                'star': row[2],
+                'comment': row[3],
+                'time': row[4].isoformat()
+            }
+            for row in result
+        ]
+        psql_conn.close()
+        return jsonify(review_dict), 200
+    else:
+        psql_conn.close()
+        return jsonify(None), 404
+
 
 #george_get_followings
 @app.route('/api/followings/<member_id>', methods=['GET'])

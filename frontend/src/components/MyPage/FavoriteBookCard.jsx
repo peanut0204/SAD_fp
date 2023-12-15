@@ -10,9 +10,9 @@ import { Card, CardContent, Typography, Button, CardActions } from '@mui/materia
 //import Link from 'next/link';
 import { Link } from 'react-router-dom';
 
-// 每頁有 5 個，每 5 個排一列
+// 每頁有 3 個，每 3 個排一列
 export default function FavoriteBookCard({ memberId, books }) {
-  const pageSize = 5; // 每頁顯示的卡片數量
+  const pageSize = 3; // 每頁顯示的卡片數量
   const [currentPage, setCurrentPage] = useState(0); // 當前頁碼
 
   // const defaultTheme = createTheme(); // default theme
@@ -30,7 +30,7 @@ export default function FavoriteBookCard({ memberId, books }) {
   const endIndex = startIndex + pageSize;
   const visibleBooks = books.slice(startIndex, endIndex);
   const groups = visibleBooks.reduce((acc, curr, i) => {
-    const groupIndex = Math.floor(i / 5); // 每一列有 5 個
+    const groupIndex = Math.floor(i / 3); // 每一列有 1 個
     if (!acc[groupIndex]) {
       acc[groupIndex] = [];
     }
@@ -49,7 +49,7 @@ export default function FavoriteBookCard({ memberId, books }) {
               {group.map((book) => (
                 <Card key={book.id}
                   sx={{
-                    width: "18%", mx: '1%', my: '1%', borderRadius: '8px', //
+                    width: "100%", mx: '1%', my: '1%', borderRadius: '8px', //
                     ':hover': {
                       boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.3)",
                       transition: "transform 0.15s ease-in-out",
