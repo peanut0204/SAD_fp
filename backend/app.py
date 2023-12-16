@@ -427,6 +427,36 @@ def get_myInfo(member_id):
         psql_conn.close()
         return jsonify(None), 404
 
+# MyPage/Review
+@app.route('/api/myAllReviews/<member_id>', methods=['GET'])
+def get_myAllReviews(member_id):
+    psql_conn = psycopg2.connect(f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    query = """
+        select b.isbn, b.name, r.star_rating, r.comment, r.timestamp from review as r
+        join book as b on b.isbn = r.isbn
+        where r.member_id = %s
+    """
+    with psql_conn.cursor() as cursor:
+        cursor.execute(query, (member_id, ))
+        result = cursor.fetchall()
+    if result:
+        review_dict = [
+             {
+                'id': row[0],
+                'book_name': row[1],
+                'star': row[2],
+                'comment': row[3],
+                'time': row[4].isoformat()
+            }
+            for row in result
+        ]
+        psql_conn.close()
+        return jsonify(review_dict), 200
+    else:
+        psql_conn.close()
+        return jsonify(None), 404
+
+
 # UserPage/UserInfo
 @app.route('/api/userInfo/<other_id>', methods=['GET'])
 def get_userInfo(other_id):
