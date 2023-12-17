@@ -9,7 +9,7 @@ import string
 # Connect to PostgreSQL and fetch data
 with open('db_password.txt', 'r') as file:
     db_password = file.read().strip()
-dbname = 'BOOK_SHARING'
+dbname = 'dbms_fp'
 
 
 def random_string(length, num):
@@ -67,7 +67,7 @@ def login():
     try:
         psql_conn = psycopg2.connect(
             "dbname='"+dbname+"' user='postgres' host='localhost' password=" + db_password)
-        query = "SELECT m.member_id, r.role FROM member AS m JOIN member_role AS r ON m.member_id=r.member_id WHERE m.account='" + \
+        query = "SELECT m.member_id, r.role, m.status FROM member AS m JOIN member_role AS r ON m.member_id=r.member_id WHERE m.account='" + \
             account+"' AND m.password='"+password+"'"
         df = pd.read_sql_query(query, psql_conn)
         psql_conn.close()
@@ -76,11 +76,14 @@ def login():
         # 	result = cursor.fetchone()
 
         if not df.empty:
-            if 'Admin' in df['role'].values:
-                identity = 'Admin'
+            if 'Blocked' in df['status'].values:
+                return jsonify({'success': False, 'message': 'Login failed. Your account has been blocked'}), 403
             else:
-                identity = 'User'
-            return jsonify({'success': True, 'memberId': df['member_id'][0], 'identity': identity})
+                if 'Admin' in df['role'].values:
+                    identity = 'Admin'
+                else:
+                    identity = 'User'
+                return jsonify({'success': True, 'memberId': df['member_id'][0], 'identity': identity})
         else:
             return jsonify({'success': False, 'message': 'Login failed. Invalid account or password'})
 
