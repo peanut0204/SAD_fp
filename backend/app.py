@@ -90,6 +90,7 @@ def login():
 
 
 # Register
+# Register
 @app.route('/api/register', methods=['POST'])
 def register():
     # Get parameters from the JSON request data
@@ -103,10 +104,24 @@ def register():
     birthday = data.get('birthday')
 
     # add some code here
+    # connect to database
+    psql_conn = psycopg2.connect(
+        f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    cursor = psql_conn.cursor()
 
+    mid = random_string(10, 1)[0]
+    insert_query = """INSERT INTO MEMBER (member_id, account, password, name, nickname, gender, birthday, status) 
+    VALUES (%s, %s, %s, %s, %s, %s, %s, 'Normal')"""
+
+    insert_query_2 = """INSERT INTO member_role (member_id, role) VALUES (%s, 'User')"""
+
+    cursor.execute(insert_query, (mid, account, password,
+                   name, nickname, gender, birthday))
+    cursor.execute(insert_query_2, (mid,))
+    psql_conn.commit()
     # or return jsonify({'success': False, 'message': 'Account already registered}), 400
     # or return jsonify({'success': False, 'message': 'Invalid input fromat'}), 400
-    return jsonify({'success': True, 'message': 'Register success', 'memberId': 1}), 200
+    return jsonify({'success': True, 'message': 'Register success', 'memberId': mid}), 200
 
 
 # MyInfo/Favorite
