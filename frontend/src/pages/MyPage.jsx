@@ -10,11 +10,11 @@ import Following from '../components/MyPage/Following';
 function MyPage() {
   const { memberId } = useParams();
   return (
-    <div style={{ backgroundColor: 'saddlebrown'}}>
+    <div style={{ backgroundColor: 'saddlebrown' }}>
       <Navbar memberId={memberId} />
       <br /><br />
-      <h1 className="text-5xl font-bold mb-4 text-center" style={{color: 'white'}}>My Page</h1>
-      
+      <h1 className="text-5xl font-bold mb-4 text-center" style={{ color: 'white' }}>My Page</h1>
+
       <div>
         <MyInfo />
       </div>
@@ -27,7 +27,7 @@ function MyPage() {
       <div>
         <Following />
       </div>
-      
+
       <h1 className="text-3xl font-bold mb-4">My Page End</h1>
     </div>
   );

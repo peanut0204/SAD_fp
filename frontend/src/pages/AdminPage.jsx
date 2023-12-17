@@ -1,24 +1,13 @@
-﻿import React, { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+﻿import { Link, useParams } from 'react-router-dom';
 import Button from '@mui/material/Button'; // a prettier button
+import React, { useState, useEffect } from 'react';
 
 
 //查看想要新增的書
 const NewBookRequests = ({ books, onConfirm }) => {
-    const [selectedBooks, setSelectedBooks] = useState(
-        books.map((book) => ({ ...book, selected: false }))
-    );
     const [confirmedBooks, setConfirmedBooks] = useState([]);
-
-    const handleSelection = (id) => {
-        const updatedBooks = selectedBooks.map((book) =>
-            book.id === id ? { ...book, selected: !book.selected } : book
-        );
-        setSelectedBooks(updatedBooks);
-    };
-
     const handleConfirmation = () => {
-        const confirmed = selectedBooks.filter((book) => book.selected);
+        const confirmed = books.filter((book) => book.selected);
         setConfirmedBooks(confirmed);
         onConfirm(confirmed);
     };
@@ -27,21 +16,13 @@ const NewBookRequests = ({ books, onConfirm }) => {
         <div>
             <h2>New Book Requests</h2>
             <ul>
-                {selectedBooks.map((book) => (
+                {books.map((book) => (
                     <li key={book.id}>
-                        <input
-                            type="checkbox"
-                            checked={book.selected}
-                            onChange={() => handleSelection(book.id)}
-                        />
-                        書名:{book.name} - 作者:{book.author} - 出版商: {book.publisher} - 發行年分:
-                        {book.pub_year} - 分類:{book.tag}
+                        書名: {book.name} - 作者: {book.author} - 出版商: {book.publisher} - 發起用戶:
+                        {book.Member_id} - ISBN: {book.isbn}
                     </li>
                 ))}
             </ul>
-            <Button variant="outlined" onClick={handleConfirmation}>
-                Confirm Selection
-            </Button>
 
             {/* Display confirmed selection */}
             {confirmedBooks.length > 0 && (
@@ -60,6 +41,8 @@ const NewBookRequests = ({ books, onConfirm }) => {
     );
 };
 
+
+
 //存adimn想要新增書籍的資訊
 const AddBookForm = ({ onAddBook }) => {
     const [bookInfo, setBookInfo] = useState({
@@ -67,7 +50,9 @@ const AddBookForm = ({ onAddBook }) => {
         title: '',
         publication_year: '',
         publisher: '',
-        author: ''
+        author: '',
+        summary: '',
+        tag: ''
     });
     const [submittedData, setSubmittedData] = useState(null);
 
@@ -140,6 +125,26 @@ const AddBookForm = ({ onAddBook }) => {
                     onChange={handleChange}
                 />
             </label>
+            <label style={{ marginBottom: '10px' }}>
+                摘要:
+                <input
+                    type="text"
+                    name="summary"
+                    style={{ border: '1px solid black', borderRadius: '4px', padding: '10px', width: '300px' }}
+                    value={bookInfo.summary}
+                    onChange={handleChange}
+                />
+            </label>
+            <label style={{ marginBottom: '10px' }}>
+                標籤:
+                <input
+                    type="text"
+                    name="tag"
+                    style={{ border: '1px solid black', borderRadius: '4px', padding: '10px', width: '300px' }}
+                    value={bookInfo.tag}
+                    onChange={handleChange}
+                />
+            </label>
             <Button variant="outlined" type="submit">
                 Submit
             </Button>
@@ -151,16 +156,40 @@ const AddBookForm = ({ onAddBook }) => {
     );
 }
 
+
 //刪除評論
 const ReviewsComponent = () => {
+
+    /* 沒有後端的測試
     const [reviews, setReviews] = useState([
-        { id: 125, book_name: '書名1', star: '1', comment: '評論', time: '2020-01-20' },
-        { id: 325, book_name: '書名2', star: '5', comment: '評論', time: '2020' },
-        { id: 425, book_name: '書名3', star: '星等', comment: '評論', time: '2020' },
+        { id: 125, isbn: 'ISBN', star: '1', comment: '評論', time: '2020' },
+        { id: 325, isbn: 'ISBN', star: '5', comment: '評論', time: '2020' },
+        { id: 425, isbn: 'ISBN', star: '星等', comment: '評論', time: '2020' },
     ]);
 
     const [selectedIds, setSelectedIds] = useState([]);
-    const [confirmedReviews, setConfirmedReviews] = useState([]);
+    */
+
+    const [reviews, setReviews] = useState([]);
+    const [selectedIds, setSelectedIds] = useState([]);
+
+    useEffect(() => {
+        fetchReviews();
+    }, []);
+
+    const fetchReviews = async () => {
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/reviews');
+            if (response.ok) {
+                const data = await response.json();
+                setReviews(data);
+            } else {
+                console.error('Failed to fetch reviews.');
+            }
+        } catch (error) {
+            console.error('Error fetching reviews:', error);
+        }
+    };
 
     const toggleCheckbox = (id) => {
         const newSelectedIds = selectedIds.includes(id)
@@ -170,20 +199,35 @@ const ReviewsComponent = () => {
         setSelectedIds(newSelectedIds);
     };
 
-    const deleteComments = () => {
-        const updatedReviews = reviews.filter((review) => !selectedIds.includes(review.id));
-        setReviews(updatedReviews);
-        setSelectedIds([]);
-    };
+    const deleteComments = async () => {
+        try {
+            const selectedReviews = reviews.filter((review) => selectedIds.includes(review.id));
+            const reviewsToDelete = selectedReviews.map((review) => ({ id: review.id, isbn: review.isbn }));
 
-    const handleConfirmation = () => {
-        const confirmed = reviews.filter((review) => selectedIds.includes(review.id));
-        setConfirmedReviews(confirmed);
+            const updatedReviews = reviews.filter((review) => !selectedIds.includes(review.id));
+            setReviews(updatedReviews);
+            setSelectedIds([]);
+
+            const response = await fetch(`http://127.0.0.1:5000/api/deleteComments`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(reviewsToDelete)
+            });
+
+            if (response.ok) {
+                console.log('Selected comments deleted successfully!');
+            } else {
+                console.error('Failed to delete selected comments.');
+            }
+        } catch (error) {
+            console.error('Error deleting comments:', error);
+        }
     };
 
     return (
         <div>
-            <button onClick={deleteComments}>刪除選中的評論</button>
             <ul>
                 {reviews.map((review) => (
                     <li key={review.id}>
@@ -192,29 +236,18 @@ const ReviewsComponent = () => {
                             checked={selectedIds.includes(review.id)}
                             onChange={() => toggleCheckbox(review.id)}
                         />
-                        用戶:{review.id} - 書名: {review.book_name} - 評分: {review.star} - 時間: {review.time} - 評論: {review.comment}
+                        User: {review.id} - ISBN: {review.isbn} - Star: {review.star} - Time: {review.time} - Comment: {review.comment}
                     </li>
                 ))}
             </ul>
-            <Button variant="outlined" onClick={handleConfirmation}>
-                Confirm Selection
+            <Button variant="contained" onClick={deleteComments}>
+                Delete Selected Comments
             </Button>
-
-            {/* Display confirmed selection */}
-            {confirmedReviews.length > 0 && (
-                <div>
-                    <h3>Confirmed Selection</h3>
-                    <ul>
-                        {confirmedReviews.map((review) => (
-                            <li key={review.id}>
-                                用戶:{review.id} - 書名: {review.book_name} - 評分: {review.star} - 時間: {review.time} - 評論: {review.comment}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
         </div>
     );
+
+
+
 };
 
 // AdminPage 中使用 ReviewsComponent 的部分，無需更改
@@ -230,13 +263,14 @@ const UserDeletionComponent = ({ onDeleteUser }) => {
     };
 
     return (
-        <div style={{ position: 'fixed', bottom: 0, width: '100%', padding: '20px', backgroundColor: 'white' }}>
-            <div style={{ marginTop: '20px' }}>
+        <div style={{ position: 'fixed', top: '20px', right: '20px', padding: '20px', backgroundColor: 'white', zIndex: 1000 }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
                 <input
                     type="text"
                     value={userId}
                     onChange={(e) => setUserId(e.target.value)}
                     placeholder="Enter User ID to Delete"
+                    style={{ marginRight: '10px', padding: '8px' }}
                 />
                 <Button variant="outlined" onClick={handleDeleteUser}>
                     Delete User
@@ -254,14 +288,6 @@ function AdminPage() {
     const [showReviews, setShowReviews] = useState(false); // 控制顯示評論組件
     const [showuser, setShowuser] = useState(false); // 控制顯示評論組件
 
-    //假設這是後端傳來的資訊
-    const books = [
-        // 书籍数组
-        { id: 125, name: '書名1', author: '作者名稱', publisher: '出版商名稱', pub_year: '2020', tag: '標籤' },
-        { id: 53, name: '書名2', author: '作者名稱', publisher: '出版商名稱', pub_year: '2020', tag: '標籤' },
-        // 其他书籍对象...
-    ];
-
     //讓按鈕能縮放
     const handleShowRequests = () => {
         setShowBookRequests((prevState) => !prevState);
@@ -275,13 +301,60 @@ function AdminPage() {
         setShowReviews((prevState) => !prevState);
     };
 
-
-
-
-    const handleDeleteUser = (userId) => {
-        // 在這裡處理刪除用戶的邏輯，例如將其發送到後端
-        console.log('Deleting user with ID:', userId);
+    //處理request 的書籍
+    const [books, setBooks] = useState([]); // 儲存後端取得的書籍資訊
+    const fetchBooksFromBackend = async () => {
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/ShowBook'); // 假設這是你的後端 API 端點
+            if (response.ok) {
+                const data = await response.json();
+                setBooks(data); // 將後端取得的書籍資訊存入狀態中
+            } else {
+                console.error('Failed to fetch books.');
+            }
+        } catch (error) {
+            console.error('Error fetching books:', error);
+        }
     };
+
+    useEffect(() => {
+        fetchBooksFromBackend(); // 在組件 mount 時取得書籍資訊
+    }, []); // 空依賴表示只在組件 mount 時執行一次
+
+
+    /*假設這是後端傳來的資訊
+    const books = [
+        // 书籍数组
+        { id: 125, name: '書名1', author: '作者名稱', publisher: '出版商名稱', pub_year: '2020', tag: '標籤' },
+        { id: 53, name: '書名2', author: '作者名稱', publisher: '出版商名稱', pub_year: '2020', tag: '標籤' },
+        // 其他书籍对象...
+    ];*/
+
+
+    //處理刪除用戶
+
+    const handleDeleteUser = async (userId) => {
+        try {
+            const response = await fetch(`http://127.0.0.1:5000/api/deleteUser/${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                console.log(`User with ID ${userId} deleted successfully.`);
+                // 可以在此處理用戶成功刪除的相應操作
+            } else {
+                console.error(`Failed to delete user with ID ${userId}.`);
+                // 可以在此處理用戶刪除失敗的相應操作
+            }
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            // 可以在此處理刪除用戶的錯誤
+        }
+    };
+
 
 
     const handleConfirmation = (confirmedBooks) => {
@@ -315,15 +388,15 @@ function AdminPage() {
     const handleAddBookSubmit = async (bookData) => {
 
         // Sending book information to the backend
-        /*try {
-            const response = await fetch('/api/addBook', {
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/NewBookRequests', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(bookData)
             });
-    
+
             if (response.ok) {
                 // Handle successful addition of the book
                 console.log('Book added successfully!');
@@ -333,7 +406,7 @@ function AdminPage() {
             }
         } catch (error) {
             console.error('Error adding book:', error);
-        }*/
+        }
     };
 
 
@@ -366,7 +439,7 @@ function AdminPage() {
             {showReviews && <ReviewsComponent memberId={memberId} />}
 
             <UserDeletionComponent onDeleteUser={handleDeleteUser} />
-          
+
         </div>
     );
 }
