@@ -30,8 +30,8 @@ function Login() {
   //   setDataframe(result);
   const [account, setAccount] = useState('');
   const [password, setPassword] = useState('');
-	const [loginFailed, setLoginFailed] = useState(false);
   const navigate = useNavigate();
+  const [message, setMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -61,7 +61,7 @@ function Login() {
     } 
     else {
       console.log('Login failed');
-      setLoginFailed(true);
+      setMessage(data.message);
       
     }
 
@@ -100,7 +100,7 @@ function Login() {
               <Button variant="contained"  type="submit" style={{ marginTop: '30px', width: '120px' }}>Login</Button>
             </div>          
           </form>
-          {loginFailed && <p style={{ color: 'red' }}>Login failed</p>}
+          {message && <p style={{ color: 'red' }}>{message}</p>}
           
           <div style={{ marginTop: '20px', display: 'flex', alignItems: 'center' }}>
             <p>No account?</p>
