@@ -192,30 +192,34 @@ def search_books():
 
     # return a jasonify dataframe with columns: isban, title, author
     if (searchType == 'all'):
-        query = """select  b.Name, b.ISBN, b.SUmmary, a.Author_name, p.Publisher_name,
+        query = """select  b.Name, b.ISBN, b.SUmmary, string_agg(a.author_name, '、') AS author_name, p.Publisher_name,
         bt.Tag_name From BOOK As b 
         Join AUTHORED_BY As ab On ab.ISBN = b.ISBN
         Join AUTHOR As a On a.Author_id = ab.Author_id
         Join PUBLISHER As p On p.Publisher_id = b.Publisher_id
         Join BOOK_TAG As bt On bt.ISBN = b.ISBN
-        Where b.Name Like """ + "'%" + searchTerm + "%'" + "Or a.Author_name Like" + "'%" + searchType + "%';"
+        Where b.Name Like """ + "'%" + searchTerm + "%'" + "Or a.Author_name Like" + "'%" + searchType + "%'"+"""
+        GROUP BY b.isbn, b.name, p.publisher_name, b.publisher_year, bt.tag_name;"""
+
 
     if (searchType == 'title'):
-        query = """select  b.Name, b.ISBN, b.SUmmary, a.Author_name, p.Publisher_name,
+        query = """select  b.Name, b.ISBN, b.SUmmary, string_agg(a.author_name, '、') AS author_name, p.Publisher_name,
         bt.Tag_name From BOOK As b 
         Join AUTHORED_BY As ab On ab.ISBN = b.ISBN
         Join AUTHOR As a On a.Author_id = ab.Author_id
         Join PUBLISHER As p On p.Publisher_id = b.Publisher_id
         Join BOOK_TAG As bt On bt.ISBN = b.ISBN
-        Where b.Name Like """ + "'%" + searchTerm + "%';"
+        Where b.Name Like """ + "'%" + searchTerm + "%'"+"""
+        GROUP BY b.isbn, b.name, p.publisher_name, b.publisher_year, bt.tag_name;"""
     if (searchType == 'author'):
-        query = """select  b.Name, b.ISBN, b.SUmmary, a.Author_name, p.Publisher_name,
+        query = """select  b.Name, b.ISBN, b.SUmmary, string_agg(a.author_name, '、') AS author_name, p.Publisher_name,
         bt.Tag_name From BOOK As b 
         Join AUTHORED_BY As ab On ab.ISBN = b.ISBN
         Join AUTHOR As a On a.Author_id = ab.Author_id
         Join PUBLISHER As p On p.Publisher_id = b.Publisher_id
         Join BOOK_TAG As bt On bt.ISBN = b.ISBN
-        Where a.Author_name Like""" + "'%" + searchTerm + "%';"
+        Where a.Author_name Like""" + "'%" + searchTerm + "%'" + """
+        GROUP BY b.isbn, b.name, p.publisher_name, b.publisher_year, bt.tag_name;"""
 
     # search_term_pattern = '%' + searchTerm + '%'
     cursor.execute(query)
@@ -234,7 +238,7 @@ def search_books():
 
     return jsonify(result)
 
-    return df.to_json(orient='records')
+    
 
 
 # BookInfo/Book
