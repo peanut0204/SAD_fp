@@ -111,12 +111,13 @@ function Login() {
           
           
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '50px', backgroundColor: 'white', padding: '20px'}}>
+        {/* for test use */}
+        {/* <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '50px', backgroundColor: 'white', padding: '20px'}}>
           <p>(For test use)</p>
-          <Link to={`/SearchBook/1`}> {/* for test use */}
+          <Link to={`/SearchBook/1`}> 
             <Button variant="outlined" >Go to Search Book</Button>
           </Link>
-        </div>
+        </div> */}
         
       </ThemeProvider>
     </div>
