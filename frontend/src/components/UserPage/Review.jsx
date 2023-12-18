@@ -41,7 +41,6 @@ function Review() {
   return(
       <div style={content}>
          <h2 style={title}>評價記錄</h2>
-         <h1 style={title}> check Member_id = {memberId}, Other_id = {otherId} </h1>
          <div style={divLine}/>
          <div>
            <ReviewCard reviews={reviews} />

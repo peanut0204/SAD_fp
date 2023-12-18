@@ -28,7 +28,7 @@ function UserPage() {
         <Following />
       </div>
       
-      <h1 className="text-3xl font-bold mb-4">User Page end</h1>
+      <br /><br />
     </div>
   );
 }

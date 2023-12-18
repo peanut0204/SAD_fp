@@ -54,7 +54,6 @@ function FavoriteBook() {
   return(
     <div style={content}>
       <h2 style={title}>喜愛書籍</h2>
-      <h1 style={title}> check Member_id = {memberId}, check Other_id = {otherId} </h1>
       <div style={divLine}/>
       <div>
         <FavoriteBookCard books={books} memberId={memberId} />

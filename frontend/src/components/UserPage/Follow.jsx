@@ -68,9 +68,8 @@ function Follow() {
   
   return(
     <div style={content}>
-      <h1 style={title}> check Member_id = {memberId}, other_Id = {otherId} </h1>
       <div style={{ textAlign: 'center' }}>
-        <h2 style={title}>追蹤</h2>
+        <h2 style={title}>追蹤狀態</h2>
         <div style={divLine}/>
         
         <IconButton onClick={handleFollowClick} color={follow ? 'error' : 'default'}>

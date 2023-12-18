@@ -33,7 +33,6 @@ function Following() {
   return(
       <div style={content}>
          <h2 style={title}>追蹤清單</h2>
-         <h1 style={title}> check Member_id = {memberId} </h1>
          <div style={divLine}/>
          <div>
            <FollowingCard followings={ followings } memberId={ memberId } />

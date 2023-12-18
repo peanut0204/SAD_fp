@@ -124,7 +124,6 @@ function Review() {
   return(
       <div style={content}>
          <h2 style={title}>我的評價</h2>
-         <h1 style={title}> check Member_id = {memberId}, ISBN = {ISBN} </h1>
          <div style={divLine}/>
          <div style={{ textAlign: 'center' }}>
          <ThemeProvider theme={brownTheme}>

@@ -126,7 +126,7 @@ import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import { useParams } from 'react-router-dom';
 import Button from '@mui/material/Button';
-
+import { content } from '../css/MyPage.js';
 
 function AddBook() {
     const { memberId } = useParams();
@@ -183,9 +183,12 @@ function AddBook() {
     };
 
     return (
-        <div>
+        <div style={{backgroundColor: 'saddlebrown', minHeight: '100vh' }}>
             <Navbar memberId={memberId} />
-            <h1 className="text-3xl font-bold mb-4">Add Book Page</h1>
+            <br /><br />
+            <h1 className="text-5xl font-bold mb-4 text-center" style={{ color: 'white' }}>Add Book Page</h1>
+            {/*<h1 className="text-3xl font-bold mb-4">Add Book Page</h1>*/}
+            <div style={content}>
             <h4 className="text-sm font-medium mb-2">您可以向管理員新增目前沒有在資料庫的書</h4>
             <form onSubmit={handleSubmit} >
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '30px', alignItems: 'start' }}>
@@ -243,6 +246,8 @@ function AddBook() {
                     <p>ISBN: {submittedBookInfo.isbn}</p>
                 </div>
             )}
+            </div>
+            <br /><br />
         </div>
     );
 }

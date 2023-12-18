@@ -9,7 +9,7 @@ import string
 # Connect to PostgreSQL and fetch data
 with open('db_password.txt', 'r') as file:
     db_password = file.read().strip()
-dbname = 'dbms_fp'
+dbname = 'bula'
 
 
 def random_string(length, num):
@@ -247,19 +247,14 @@ def get_bookInfo(isbn):
     psql_conn = psycopg2.connect(
         f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
     query = """
-        SELECT b.isbn, b.name, s.avg_rating, string_agg(a.author_name, '、') AS author_name, p.publisher_name, b.publisher_year, bt.tag_name, b.Summary 
+        SELECT b.isbn, b.name, string_agg(a.author_name, '、') AS author_name, p.publisher_name, b.publisher_year, bt.tag_name, b.Summary 
         FROM book AS b
         JOIN authored_by AS ab ON ab.isbn = b.isbn
         JOIN author AS a ON a.author_id = ab.author_id
         JOIN publisher AS p ON p.publisher_id = b.publisher_id
         JOIN book_tag AS bt ON bt.isbn = b.isbn
-        JOIN (
-            SELECT r.isbn, CAST(AVG(r.star_rating) AS FLOAT) AS avg_rating FROM review AS r
-            JOIN book AS b ON b.isbn = r.isbn
-            WHERE b.isbn = %s
-            GROUP BY r.isbn
-        ) AS s ON s.isbn = b.isbn
-        GROUP BY b.isbn, b.name, s.avg_rating, p.publisher_name, b.publisher_year, bt.tag_name, b.summary;
+        WHERE b.isbn = %s
+        GROUP BY b.isbn, b.name, p.publisher_name, b.publisher_year, bt.tag_name, b.summary;
     """
     with psql_conn.cursor() as cursor:
         cursor.execute(query, (isbn, ))
@@ -268,12 +263,11 @@ def get_bookInfo(isbn):
         book_dict = {
             'isbn': result[0],
             'name': result[1],
-            'avgStar': result[2],
-            'author': result[3],
-            'publisher': result[4],
-            'pub_year': result[5],
-            'tag': result[6],
-            'summary': result[7],
+            'author': result[2],
+            'publisher': result[3],
+            'pub_year': result[4],
+            'tag': result[5],
+            'summary': result[6],
         }
         psql_conn.close()
         return jsonify(book_dict), 200
@@ -281,6 +275,24 @@ def get_bookInfo(isbn):
         psql_conn.close()
         return jsonify(None), 404
 
+@app.route('/api/avg_rating/<isbn>', methods=['GET'])
+def get_avg_rating(isbn):
+    psql_conn = psycopg2.connect(
+        f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+
+    query = """SELECT isbn, CAST(AVG(star_rating) AS FLOAT) AS avg_rating
+               FROM review
+               WHERE isbn = %s
+               GROUP BY isbn"""
+    with psql_conn.cursor() as cursor:
+        cursor.execute(query, (isbn, ))
+        result = cursor.fetchone()
+
+    if result and result[1] is not None:
+        avg_rating = result[1]
+        return jsonify({'avgStar': avg_rating})
+    else:
+        return jsonify({'avgStar': 0})
 
 # BookInfo/Favorite
 @app.route('/api/favorite/<member_id>/<isbn>', methods=['GET'])

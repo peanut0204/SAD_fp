@@ -68,7 +68,6 @@ function FavoriteBook() {
   
   return(
     <div style={content}>
-      <h1 style={title}> check Member_id = {memberId}, ISBN = {ISBN} </h1>
       <div style={{ textAlign: 'center' }}>
         <h2 style={title}>我的最愛</h2>
         <div style={divLine}/>

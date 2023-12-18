@@ -22,7 +22,6 @@ function MyInfo() {
   return(
     <div style={content}>
       <h2 style={title}>「{myInfo.nickname}」的個人資訊</h2>
-      <h1 style={title}> check Member_id = {memberId}</h1>
       <div style={divLine}/>
       <div style={{ textAlign: 'center' }}>
         <p><b>帳號｜</b>{myInfo.account}</p>
