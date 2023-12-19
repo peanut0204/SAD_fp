@@ -5,7 +5,7 @@
 > backend: Flask, Python
 
 ## Project Overview
-(NULL)
+『好書sharing』是一個致力於提升閱讀體驗的線上平台。它不同於其他書籍推薦，充滿華麗外表卻空洞內容的情況。在這裡，我們讓熱愛閱讀的每位用戶能夠與其他書迷分享心得、評價書籍，確保每一個意見都來自真實閱讀感受。不僅可以給書籍評分，還能寫下詳盡的書評。即使找不到心儀的書籍，也能夠向平台推薦。更棒的是，使用者可以透過追蹤品味相似的書迷，擴大找到優質書籍的機會。總之，『好書sharing』為熱愛閱讀的人們提供了一個真實、實用的書籍推薦平台。
 
 ## To set up database
 Create ```db_password.txt``` and write your password in the file.
