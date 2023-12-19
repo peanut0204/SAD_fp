@@ -1,7 +1,7 @@
 ﻿import { Link, useParams } from 'react-router-dom';
 import Button from '@mui/material/Button'; // a prettier button
 import React, { useState, useEffect } from 'react';
-
+import { content } from '../css/MyPage.js';
 
 //查看想要新增的書
 const NewBookRequests = ({ books, onConfirm }) => {
@@ -516,8 +516,11 @@ function AdminPage() {
 
 
     return (
-        <div>
-            <h1 className="text-3xl font-bold mb-4">Admin Page</h1>
+        <div style={{ backgroundColor: '#3974CB',  minHeight: '100vh'}}>
+            <br /><br />
+            <h1 className="text-5xl font-bold mb-4 text-center" style={{ color: 'white' }}>Admin Page</h1>
+
+            <div style={content}>
             <Link to={`/SearchBook/${memberId}`}>
                 <Button variant="outlined" style={{ marginTop: '10px' }}>
                     Go to Search Book
@@ -543,7 +546,8 @@ function AdminPage() {
             {showReviews && <ReviewsComponent memberId={memberId} />}
 
             <UserDeletionComponent onDeleteUser={handleDeleteUser} />
-
+            </div>
+            <br /><br />
         </div>
     );
 }
