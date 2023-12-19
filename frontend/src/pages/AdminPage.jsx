@@ -158,17 +158,18 @@ const AddBookForm = ({ onAddBook }) => {
 
 
 //刪除評論
+/*
 const ReviewsComponent = () => {
 
-    /* 沒有後端的測試
-    const [reviews, setReviews] = useState([
-        { id: 125, isbn: 'ISBN', star: '1', comment: '評論', time: '2020' },
-        { id: 325, isbn: 'ISBN', star: '5', comment: '評論', time: '2020' },
-        { id: 425, isbn: 'ISBN', star: '星等', comment: '評論', time: '2020' },
-    ]);
+    //沒有後端的測試
+    //const [reviews, setReviews] = useState([
+    //    { id: 125, isbn: 'ISBN', star: '1', comment: '評論', time: '2020' },
+    //    { id: 325, isbn: 'ISBN', star: '5', comment: '評論', time: '2020' },
+    //    { id: 425, isbn: 'ISBN', star: '星等', comment: '評論', time: '2020' },
+    //]);
 
-    const [selectedIds, setSelectedIds] = useState([]);
-    */
+    //const [selectedIds, setSelectedIds] = useState([]);
+    
 
     const [reviews, setReviews] = useState([]);
     const [selectedIds, setSelectedIds] = useState([]);
@@ -249,6 +250,109 @@ const ReviewsComponent = () => {
 
 
 };
+*/
+const ReviewsComponent = () => {
+    const [memberId, setMemberId] = useState('');
+    const [reviews, setReviews] = useState([]);
+    const [selectedIds, setSelectedIds] = useState([]);
+
+    useEffect(() => {
+        if (memberId !== '') {
+            fetchReviews();
+        }
+    }, [memberId]);
+
+    const fetchReviews = async () => {
+        try {
+            const response = await fetch(`http://127.0.0.1:5000/api/reviews/${memberId}`);
+            if (response.ok) {
+                const data = await response.json();
+                const updatedReviews = data.map((review, index) => ({
+                    ...review,
+                    id: `review_${index}`, // 前端生成的唯一 id
+                    checked: false
+                }));
+                setReviews(updatedReviews);
+                setSelectedIds([]);
+            } else {
+                console.error('Failed to fetch reviews.');
+            }
+        } catch (error) {
+            console.error('Error fetching reviews:', error);
+        }
+    };
+
+    const handleInputChange = (event) => {
+        setMemberId(event.target.value);
+    };
+
+    const toggleCheckbox = (id) => {
+        const updatedReviews = reviews.map(review => {
+            if (review.id === id) {
+                return { ...review, checked: !review.checked };
+            }
+            return review;
+        });
+
+        setReviews(updatedReviews);
+        const updatedSelectedIds = updatedReviews.filter(review => review.checked).map(review => review.id);
+        setSelectedIds(updatedSelectedIds);
+    };
+
+    const deleteComments = async () => {
+        try {
+            const selectedReviews = reviews.filter(review => review.checked);
+            const reviewsToDelete = selectedReviews.map(review => ({ id: memberId,reviewId: review.id, isbn: review.isbn }));
+
+            const updatedReviews = reviews.filter(review => !review.checked);
+            setReviews(updatedReviews);
+
+            const response = await fetch('http://127.0.0.1:5000/api/deleteComments', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(reviewsToDelete)
+            });
+
+            if (response.ok) {
+                console.log('Selected comments deleted successfully!');
+            } else {
+                console.error('Failed to delete selected comments.');
+            }
+        } catch (error) {
+            console.error('Error deleting comments:', error);
+        }
+    };
+
+    return (
+        <div>
+            <input
+                type="text"
+                placeholder="Enter Member ID"
+                value={memberId}
+                onChange={handleInputChange}
+            />
+            <ul>
+                {reviews.map((review) => (
+                    <li key={review.id}>
+                        <input
+                            type="checkbox"
+                            checked={review.checked}
+                            onChange={() => toggleCheckbox(review.id)}
+                        />
+                        User: {review.id} - ISBN: {review.isbn} - Star: {review.star} - Time: {review.time} - Comment: {review.comment}
+                    </li>
+                ))}
+            </ul>
+            <Button variant="outlined" style={{ marginTop: '10px' }} onClick={deleteComments}>
+                Delete Selected Comments
+            </Button>
+        </div>
+    );
+};
+
+
 
 // AdminPage 中使用 ReviewsComponent 的部分，無需更改
 
@@ -269,11 +373,11 @@ const UserDeletionComponent = ({ onDeleteUser }) => {
                     type="text"
                     value={userId}
                     onChange={(e) => setUserId(e.target.value)}
-                    placeholder="Enter User ID to Delete"
+                    placeholder="Enter User ID to Block"
                     style={{ marginRight: '10px', padding: '8px' }}
                 />
                 <Button variant="outlined" onClick={handleDeleteUser}>
-                    Delete User
+                    Block User
                 </Button>
             </div>
         </div>

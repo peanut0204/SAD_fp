@@ -644,7 +644,7 @@ def delete_follow(member_id, other_id):
 # where to test this api
 # get member reviews
 
-
+'''
 @app.route('/api/reviews/<member_id>', methods=['GET'])
 def reviews(member_id):
 
@@ -676,7 +676,7 @@ def reviews(member_id):
     ]
 
     return jsonify(result)
-
+'''
 # add record to book_request
 
 
@@ -878,6 +878,38 @@ def update_member_status(user_id):
         return jsonify({"message": "delete failed!"}), 200
 
 
+@app.route('/api/reviews/<member_id>', methods=['GET'])
+def get_review_requests(member_id):
+
+    psql_conn = psycopg2.connect(
+        "dbname='"+dbname+"' user='postgres' host='localhost' password=" + db_password)
+    # query = "select * from member_role as mr where mr.member_id = "+member_id
+    # df = pd.read_sql_query(query, psql_conn)
+    print(member_id)
+    # if "Admin" in df['role'].values:
+    cur = psql_conn.cursor()
+    sql = """select re.member_id, re.isbn, re.star_rating, re.comment, re.timestamp from review As re WHERE member_id = %s"""
+    cur.execute(sql, (member_id,))
+    query_result = cur.fetchall()
+
+    result = [
+        {
+            "id": row[0],
+            "isbn": row[1],
+            "star": row[2],
+            "comment": row[3],
+            "time": row[4].isoformat()
+
+        }
+        for row in query_result
+    ]
+
+    psql_conn.commit()
+    return jsonify(result)
+    # else:
+    #     return jsonify({'message': 'You do not have permission to use this function'})
+
+'''
 @app.route('/api/reviews', methods=['GET'])
 def get_review_requests():
 
@@ -908,7 +940,7 @@ def get_review_requests():
     return jsonify(result)
     # else:
     #     return jsonify({'message': 'You do not have permission to use this function'})
-
+'''
 
 @app.route('/api/deleteComments', methods=['DELETE'])
 def deleteComments():
