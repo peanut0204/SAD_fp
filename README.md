@@ -5,10 +5,15 @@
 > backend: Flask, Python
 
 ## Project Overview
-『好書sharing』是一個提升閱讀體驗及樂趣的平台，用戶可以在此分享最真實的閱讀感受、推薦自己喜愛的書籍及追蹤與其品味相似同好，降低尋找好書的搜尋成本。對於熱愛閱讀的人而言，這將是一個最真實、實用的交流空間。
+[🔗 展示影片連結](https://www.youtube.com/watch?v=QPGB96r7pdg)
+
+「好書 sharing」是一個提升閱讀體驗及樂趣的平台，用戶可以在此分享最真實的閱讀感受、推薦自己喜愛的書籍及追蹤與其品味相似同好，降低尋找好書的搜尋成本。對於熱愛閱讀的人而言，這將是一個最真實、實用的交流空間。
+
 
 ## To set up database
-Create ```db_password.txt``` and write your password in the file.
+Create new database in PostgreSQL and restore database from ```book_sharing_db.sql```.
+
+Go to backend, create ```db_password.txt``` and write your password in the file.
 
 Change database name in ```app.py```
 ```
@@ -81,3 +86,10 @@ and the server would runs on port http://127.0.0.1:5000/
 ![My Page](./screenshot/3_myPage.png)
 以「搜尋書籍」的功能為例，可以在上方的選單列進入 Search Book 畫面，開始找書。
 ![Search Book Page](./screenshot/4_searchBook.png)
+
+以下提供兩組帳密讓大家測試功能。
+
+| Role | Account | Password |
+| --- | --- | --- |
+| User | xjmCgwsEqlQpGoBvGVVk@gmail.com | s1Qu4OcWvy |
+| Admin | tvgRaQkjYTjKTelNwCgU@gmail.com | 35qzHeSUgf |
