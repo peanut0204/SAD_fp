@@ -963,6 +963,26 @@ def deleteComments():
 
     return jsonify({'message': 'reviews deleted successfully'})
 
+# anyPage
+@app.route('/api/myRole/<member_id>', methods=['GET'])
+def get_myRole(member_id):
+    psql_conn = psycopg2.connect(f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    query = """
+        select role from member_role where member_id = %s
+    """
+    with psql_conn.cursor() as cursor:
+        cursor.execute(query, (member_id,))
+        result = cursor.fetchone()
+    if result:
+        myInfo_dict = {
+            'role': result[0],
+        }
+        psql_conn.close()
+        return jsonify(myInfo_dict), 200
+    else:
+        psql_conn.close()
+        return jsonify(None), 404
+
 
 if __name__ == '__main__':
     app.run(debug=True)

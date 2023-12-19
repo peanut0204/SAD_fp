@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState, useEffect} from 'react';
 // style
 import { brownTheme } from "../../css/MyPage.js";
 // import { ThemeProvider, createTheme } from '@mui/material/styles'; // default theme
@@ -12,6 +12,16 @@ import { Link } from 'react-router-dom';
 
 // 每頁有 6 個，每 3 個排一列
 export default function ReviewCard({ reviews, memberId }) {
+  const [myRole, setMyRole] = useState({ role:'User', });
+  
+  const isAdmin = myRole.role === 'Admin';
+  useEffect(() => {
+    fetch(`http://127.0.0.1:5000/api/myRole/${memberId}`) // call API
+      .then(response => response.json()) // get result
+      .then(data => setMyRole(data))
+      .catch(error => console.error('Error fetching followings:', error));
+  }, [memberId]);
+
   const pageSize = 6; // 每頁顯示的卡片數量
   const [currentPage, setCurrentPage] = useState(0); // 當前頁碼
 
@@ -67,6 +77,11 @@ export default function ReviewCard({ reviews, memberId }) {
                       {review.nickname}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
+                      {isAdmin && (
+                        <div>
+                          <b>Member ID｜</b>{review.id}
+                        </div>
+                      )}
                       <b>評等｜</b>{getStar(review.star)} ({review.star})<br />
                       <b>評論｜</b>{review.comment}<br />
                       <b>時間戳記｜</b>{review.time}<br />
