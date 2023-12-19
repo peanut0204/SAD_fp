@@ -526,7 +526,10 @@ def get_followings(member_id):
 def get_myInfo(member_id):
     psql_conn = psycopg2.connect(
         f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
-    query = "select account, name, nickname, gender, birthday from member where member_id = %s"
+    query = """
+        select account, name, nickname, gender, birthday, role from member as m 
+        join member_role as mr on mr.member_id = m.member_id where m.member_id = %s
+    """
     with psql_conn.cursor() as cursor:
         cursor.execute(query, (member_id,))
         result = cursor.fetchone()
@@ -537,6 +540,7 @@ def get_myInfo(member_id):
             'nickname': result[2],
             'gender': result[3],
             'birthday': result[4].isoformat(),
+            'role': result[5],
         }
         psql_conn.close()
         return jsonify(myInfo_dict), 200
