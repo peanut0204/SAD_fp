@@ -1,4 +1,4 @@
-# Good Book Sharing Web App
+# 揪團GO
 
 > frontend: React, Tailwind
 
