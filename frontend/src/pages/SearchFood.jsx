@@ -50,7 +50,7 @@ function SearchFood() {
 				<Navbar memberId={memberId} />
 			</div>
 			)}
-			<div classname="p-10" style={{ backgroundColor: 'saddlebrown', minHeight: '100vh' , display: 'flex', flexDirection: 'column', alignItems: 'center', color: '#5e3f26' }}>
+			<div classname="p-10" style={{ backgroundColor: '#F1C010', minHeight: '100vh' , display: 'flex', flexDirection: 'column', alignItems: 'center', color: '#5e3f26' }}>
 			<ThemeProvider theme={theme}>   
         <div style={{ backgroundColor: 'white', borderRadius: '10px', padding: '50px', width: '90%', marginTop: '50px', marginBottom: '50px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 				<h1 className="text-5xl font-bold mb-4">Search Book Page</h1>
