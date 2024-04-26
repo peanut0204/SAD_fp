@@ -72,9 +72,9 @@ function Login() {
   
   return (
 
-    <div classname="p-10" style={{ backgroundColor: 'saddlebrown', minHeight: '100vh' , display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#5e3f26' }}>
+    <div style={{ backgroundColor: 'saddlebrown', minHeight: '100vh' , display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#5e3f26' }}>
       <ThemeProvider theme={theme}>   
-        <div style={{ backgroundColor: 'white', borderRadius: '10px', padding: '50px', width: '30%', marginTop: '50px', marginBottom: '50px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ backgroundColor: 'white', borderRadius: '10px', padding: '50px', width: '60%', marginTop: '50px', marginBottom: '50px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <h1 className="text-5xl font-bold mb-20"  >Login Page</h1>
           {/* <NumberInputForm onSubmit={handleFormSubmit} /> */}
           {/* <pre className="mt-4">{JSON.stringify(dataframe, null, 2)}</pre> */}
@@ -112,12 +112,12 @@ function Login() {
           
         </div>
         {/* for test use */}
-        {/* <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '50px', backgroundColor: 'white', padding: '20px'}}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '50px', backgroundColor: 'white', padding: '20px'}}>
           <p>(For test use)</p>
-          <Link to={`/SearchBook/1`}> 
-            <Button variant="outlined" >Go to Search Book</Button>
+          <Link to={`/SearchFood/1`}> 
+            <Button variant="outlined" >Go to Home Page</Button>
           </Link>
-        </div> */}
+        </div>
         
       </ThemeProvider>
     </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import LeftSideBar from '../components/Sidebar';
 import Button from '@mui/material/Button'; //a prettier button
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
@@ -13,15 +14,19 @@ const theme = createTheme({
   },
 });
 
-function SearchBook() {
+function SearchFood() {
 	const { memberId } = useParams();
 	const [searchTerm, setSearchTerm] = useState('');
 	const [searchType, setSearchType] = useState('all');
 	const [books, setBooks] = useState([]);
 	const [isSearchClicked, setIsSearchClicked] = useState(false);
+	const [sidebarOpen, setSidebarOpen] = useState(false);
 
+	const toggleSidebar = () => {
+		setSidebarOpen(!sidebarOpen);
+	};
 	const handleSearch =  async (e) => {
-    const response = await fetch('http://127.0.0.1:5000/api/searchbook', {
+    const response = await fetch('http://127.0.0.1:5000/api/searchfood', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -35,9 +40,16 @@ function SearchBook() {
 		setBooks(data);
 		
   };
+
 	return (
 		<div >
-			<Navbar memberId={memberId} />
+			{/* <Navbar memberId={memberId} /> */}
+			<button onClick={toggleSidebar}>Toggle Sidebar</button>
+			{sidebarOpen && (
+			<div style={{ position: 'fixed', ledt: 0, width: '200px', height: '100vh', backgroundColor: '#333' }}>
+				<Navbar memberId={memberId} />
+			</div>
+			)}
 			<div classname="p-10" style={{ backgroundColor: 'saddlebrown', minHeight: '100vh' , display: 'flex', flexDirection: 'column', alignItems: 'center', color: '#5e3f26' }}>
 			<ThemeProvider theme={theme}>   
         <div style={{ backgroundColor: 'white', borderRadius: '10px', padding: '50px', width: '90%', marginTop: '50px', marginBottom: '50px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -84,4 +96,4 @@ function SearchBook() {
 	);
 }
 
-export default SearchBook;
+export default SearchFood;

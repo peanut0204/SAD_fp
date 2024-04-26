@@ -3,12 +3,15 @@ import '../css/Navbar.css';
 
 function Navbar({memberId}) {
   return (
-    <div class="topnav">
+    <div class="sidebar">
       <ul>
-        <li><Link to="/">Login Page</Link></li>
-        <li><Link to={`/SearchBook/${memberId}`}>Search Book</Link></li>
-        <li><Link to={`/AddBook/${memberId}`}>Add Book</Link></li>
-        <li><Link to={`/MyPage/${memberId}`}>My Page</Link></li>
+        {/* <li><Link to="/">Login Page</Link></li> */}
+        <li><Link to={`/SearchFood/${memberId}`}>首頁</Link></li>
+        <li><Link to={`/Notifications/${memberId}`}>通知中心</Link></li>
+        <li><Link to={`/MyGroup/${memberId}`}>我的團購群</Link></li>
+        <li><Link to={`/BuildGroup/${memberId}`}>建立團購群</Link></li>
+        <li><Link to={`/SellerOffice/${memberId}`}>賣家工作室</Link></li>
+        {/* <li><Link to={`/MyPage/${memberId}`}>My Page</Link></li> */}
         {/* Add more navigation links as needed */}
       </ul>
     </div>

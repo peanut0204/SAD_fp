@@ -123,7 +123,7 @@
 
 // export default AddBook;
 import React, { useState } from 'react';
-import Navbar from '../components/Navbar';
+import Navbar from '../components/Navbar.jsx';
 import { useParams } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import { content } from '../css/MyPage.js';
