@@ -30,6 +30,7 @@ function SearchFood() {
 	const [isSearchGoodClicked, setIsSearchGoodClicked] = useState(false);
 	const [isSearchPlaceClicked, setIsSearchPlaceClicked] = useState(false);
 	const [sidebarOpen, setSidebarOpen] = useState(false);
+	const [ads, setAds] = useState([]);
 
 	const toggleSidebar = () => {
 		setSidebarOpen(!sidebarOpen);
@@ -82,6 +83,22 @@ function SearchFood() {
 		setSearchPlaceResults(data);
 
 	};
+
+	useEffect(() => {
+		const fetchAds = async () => {
+			const response = await fetch('http://127.0.0.1:5000/api/allAds', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({}),
+			});
+			const data = await response.json();
+			setAds(data);
+		};
+
+		fetchAds();
+	}, []);
 	
 
 	return (
@@ -156,11 +173,11 @@ function SearchFood() {
 								<p>{searchPlace.length} groups found</p>
 								{searchPlace.map((group, index) => (
 								<div key={index} className="p-6 m-2 border rounded" style={{ width: '80%' }} >
-									
+									{group.image && <img src={`data:image/jpeg;base64,${group.image}`} alt={group.id} />}
 									<h2 className="text-xl font-bold mb-1">{group.title}</h2>
 									<p>{group.address}</p>
 									<p>{group.memberAmount}</p>
-									
+
 								</div>
 								))}
 							</>
@@ -170,10 +187,7 @@ function SearchFood() {
 								<p>advertisements</p>
 								{ads.map((ad, index) => (
 								<div key={index} className="p-6 m-2 border rounded" style={{ width: '80%' }} >
-									<Link to={`/AdInfo/${memberId}/${ad.isbn}`}>
-									<h2 className="text-xl font-bold mb-1">{ad.title}</h2>
-									</Link>
-									<p>{ad.author}</p>
+									{ad.image && <img src={`data:image/jpeg;base64,${ad.image}`} alt={ad.id} />}	
 								</div>
 								))}
 							</>
