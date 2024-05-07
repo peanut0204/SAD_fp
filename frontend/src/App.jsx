@@ -18,12 +18,6 @@ import MyOrder from './pages/MyOrder';
 import SellerChats from './pages/SellerChats';
 import OrderState from './pages/OrderState';
 
-import AddBook from './old_pages/AddBook';
-import BookInfo from './old_pages/BookInfo';
-import UserPage from './old_pages/UserPage';
-import MyPage from './old_pages/MyPage';
-import Register from './old_pages/Register';
-import AdminPage from './old_pages/AdminPage';
 
 function App() {
   return (

@@ -25,7 +25,7 @@ function Login() {
   // 		},
   // 		body: JSON.stringify(formData),
   //   });
-  
+
   //   const result = await response.json();
   //   setDataframe(result);
   const [account, setAccount] = useState('');
@@ -54,26 +54,26 @@ function Login() {
       console.log('Member ID:', data.memberId);
       console.log('Identity:', data.identity);
       if (data.identity === 'Admin') {
-        navigate(`/AdminPage/${data.memberId}`); 
+        navigate(`/AdminPage/${data.memberId}`);
       } else {
-        navigate(`/MyPage/${data.memberId}`); 	
+        navigate(`/MyPage/${data.memberId}`);
       }
-    } 
+    }
     else {
       console.log('Login failed');
       setMessage(data.message);
-      
+
     }
 
-    
+
   };
 
-  
-  
+
+
   return (
 
-    <div style={{ backgroundColor: '#F1C010', minHeight: '100vh' , display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#5e3f26' }}>
-      <ThemeProvider theme={theme}>   
+    <div style={{ backgroundColor: '#F1C010', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#5e3f26' }}>
+      <ThemeProvider theme={theme}>
         <div style={{ backgroundColor: 'white', borderRadius: '10px', padding: '50px', width: '60%', marginTop: '50px', marginBottom: '50px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <h1 className="text-5xl font-bold mb-20"  >Login Page</h1>
           {/* <NumberInputForm onSubmit={handleFormSubmit} /> */}
@@ -96,29 +96,29 @@ function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </label>
-            
-              <Button variant="contained"  type="submit" style={{ marginTop: '30px', width: '120px' }}>Login</Button>
-            </div>          
+
+              <Button variant="contained" type="submit" style={{ marginTop: '30px', width: '120px' }}>Login</Button>
+            </div>
           </form>
           {message && <p style={{ color: 'red' }}>{message}</p>}
-          
+
           <div style={{ marginTop: '20px', display: 'flex', alignItems: 'center' }}>
             <p>No account?</p>
             <Link to="/Register">
               <Button variant="outlined" style={{ marginTop: '10px', marginLeft: '10px' }}>Go to Register</Button>
             </Link>
           </div>
-          
-          
+
+
         </div>
         {/* for test use */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '50px', backgroundColor: 'white', padding: '20px'}}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '50px', backgroundColor: 'white', padding: '20px' }}>
           <p>(For test use)</p>
-          <Link to={`/SearchFood/1`}> 
+          <Link to={`/SearchFood/1`}>
             <Button variant="outlined" >Go to Home Page</Button>
           </Link>
         </div>
-        
+
       </ThemeProvider>
     </div>
 
