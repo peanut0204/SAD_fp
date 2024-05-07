@@ -18,12 +18,6 @@ import MyOrder from './pages/MyOrder';
 import SellerChats from './pages/SellerChats';
 import OrderState from './pages/OrderState';
 
-import AddBook from './old_pages/AddBook';
-import BookInfo from './old_pages/BookInfo';
-import UserPage from './old_pages/UserPage';
-import MyPage from './old_pages/MyPage';
-import Register from './old_pages/Register';
-import AdminPage from './old_pages/AdminPage';
 
 function App() {
   return (
@@ -35,7 +29,7 @@ function App() {
         <Route path="/MyGroup/:memberId" element={<MyGroup />} />
         <Route path="/BuildGroup/:memberId" element={<BuildGroup />} />
         <Route path="/SellerOffice/:memberId" element={<SellerOffice />} />
-        <Route path="/ProductInfo/:memberId/:ISBN" element={<ProductInfo />} />
+        <Route path="/ProductInfo/:memberId/:productId" element={<ProductInfo />} />
         <Route path="/SellerInfo/:memberId/:otherId" element={<SellerInfo />} />
         <Route path="/ChatRoom/:memberId/:otherId" element={<ChatRoom />} />
         <Route path="/ConfirmOrder/:memberId" element={<ConfirmOrder />} />
