@@ -210,7 +210,7 @@ function SearchFood() {
 							// Render ads
 							<>
 								<p>advertisements</p>
-								{ads.map((ad, index) => (
+								{ads && ads.map((ad, index) => (
 									<div key={index} className="p-6 m-2 border rounded" style={{ width: '80%' }} >
 										{ad.image && <img src={`data:image/jpeg;base64,${ad.image}`} alt={ad.id} />}	
 									</div>
