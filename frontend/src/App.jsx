@@ -29,7 +29,7 @@ function App() {
         <Route path="/MyGroup/:memberId" element={<MyGroup />} />
         <Route path="/BuildGroup/:memberId" element={<BuildGroup />} />
         <Route path="/SellerOffice/:memberId" element={<SellerOffice />} />
-        <Route path="/ProductInfo/:memberId/:ISBN" element={<ProductInfo />} />
+        <Route path="/ProductInfo/:memberId/:productId" element={<ProductInfo />} />
         <Route path="/SellerInfo/:memberId/:otherId" element={<SellerInfo />} />
         <Route path="/ChatRoom/:memberId/:otherId" element={<ChatRoom />} />
         <Route path="/ConfirmOrder/:memberId" element={<ConfirmOrder />} />
