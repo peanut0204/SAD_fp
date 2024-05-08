@@ -6,10 +6,10 @@ from datetime import datetime
 import random
 import string
 
-# Connect to PostgreSQL and fetch data
-with open('db_password.txt', 'r') as file:
-    db_password = file.read().strip()
-dbname = 'bula'
+# # Connect to PostgreSQL and fetch data
+# with open('db_password.txt', 'r') as file:
+#     db_password = file.read().strip()
+# dbname = 'bula'
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -61,7 +61,7 @@ def search_groups():
 def get_all_ads():
 
 
-    query_result = [] # result from db
+    query_result = [[]] # result from db
     result = [
         {
             "id": row[0],
@@ -80,6 +80,9 @@ def join_group():
     groupId = data.get('groupId')
     memberId = data.get('userId')
 
-    
+
     # or return jsonify({'success': False, 'message': 'Group Already Joined'}), 400
     return jsonify({'success': True, 'message': 'Join Success'}), 200
+
+if __name__ == '__main__':
+    app.run(debug=True)

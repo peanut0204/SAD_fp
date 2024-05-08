@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 // import LeftSideBar from '../components/Sidebar';
@@ -33,9 +33,9 @@ function SearchFood() {
 	const [ads, setAds] = useState([]);
 	const [message, setMessage] = useState('');
 
-	const toggleSidebar = () => {
+	const toggleSidebar = useCallback(() => {
 		setSidebarOpen(!sidebarOpen);
-	};
+	}, [sidebarOpen]);
 	const sidebarRef = useRef();
 
 	useEffect(() => {
@@ -86,21 +86,29 @@ function SearchFood() {
 	};
 
 	useEffect(() => {
-		const fetchAds = async () => {
-			const response = await fetch('http://127.0.0.1:5000/api/getAllAds', {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				
-			});
-			const data = await response.json();
-			setAds(data);
-		};
+  const fetchAds = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:5000/api/getAllAds', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-		fetchAds();
-	}, []);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
+      const data = await response.json();
+      setAds(data);
+    } catch (error) {
+      console.error('Failed to fetch ads:', error);
+      // Handle the error as appropriate for your application
+    }
+  };
+
+  fetchAds();
+}, []);
 	const handleJoinGroup = async (groupId) => {
 		const response = await fetch('http://127.0.0.1:5000/api/joinGroup', {
 		  method: 'POST',
