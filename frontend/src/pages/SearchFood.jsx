@@ -25,8 +25,10 @@ function SearchFood() {
 	const [searchPlace, setSearchPlace] = useState('');
 	// const [searchType, setSearchType] = useState('all');
 	// const [searchResults, setSearchResults] = useState([]);
-	const [setSearchGoodResults] = useState([]);
-	const [setSearchPlaceResults] = useState([]);
+	// const [setSearchGoodResults] = useState([]);
+	// const [setSearchPlaceResults] = useState([]);
+	const [searchGoodResults, setSearchGoodResults] = useState([]); // 張
+	const [searchPlaceResults, setSearchPlaceResults] = useState([]); // 張
 	const [isSearchGoodClicked, setIsSearchGoodClicked] = useState(false);
 	const [isSearchPlaceClicked, setIsSearchPlaceClicked] = useState(false);
 	const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -184,8 +186,8 @@ function SearchFood() {
 						{/* list found food or gorups and list advertisements when no search */}
 						{isSearchGoodClicked ? (
 							<>
-								<p>{searchGood.length} goods found</p>
-								{searchGood.map((good, index) => (
+								<p>{searchGoodResults.length} goods found</p>
+								{searchGoodResults.map((good, index) => (
 								<div key={index} className="p-6 m-2 border rounded" style={{ width: '80%' }} >
 									{good.image && <img src={`data:image/jpeg;base64,${good.image}`} alt={good.id} />}
 									<Link to={`/ProductInfo/${memberId}/${good.id}`}>
@@ -201,8 +203,8 @@ function SearchFood() {
 							</>
 							) : isSearchPlaceClicked ? (
 							<>
-								<p>{searchPlace.length} groups found</p>
-								{searchPlace.map((group, index) => (
+								<p>{searchPlaceResults.length} groups found</p>
+								{searchPlaceResults.map((group, index) => (
 								<div key={index} className="p-6 m-2 border rounded" style={{ width: '80%' }} >
 									{group.image && <img src={`data:image/jpeg;base64,${group.image}`} alt={group.id} />}
 									<h2 className="text-xl font-bold mb-1">{group.title}</h2>

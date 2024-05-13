@@ -25,7 +25,7 @@ function BuildGroup() {
     };
 
     // Send data to the backend using Fetch API (or Axios)
-    fetch('/api/create-group', {
+    fetch('/api/build-group', {
       method: 'POST',
       body: JSON.stringify(data),
       headers: {
@@ -58,7 +58,7 @@ function BuildGroup() {
           <div className="flex-auto text-center" style={{ marginRight: '30px' }}>建立社群</div>
         </div>
         <form onSubmit={handleSubmit}>
-          <div className="flex flex-col px-5 mt-32 w-full">
+          <div className="flex flex-col px-5 mt-5 w-full">
             <div className="self-start ml-3 text-xl text-black">社群名稱</div>
               <input
               type="text"
@@ -106,23 +106,23 @@ function BuildGroup() {
               className="justify-center items-start self-center px-4 py-3 mt-4 max-w-full text-base font-medium leading-6 whitespace-nowrap rounded-lg border border-solid shadow-sm bg-neutral-200 border-neutral-200 text-zinc-500 w-[325px]"
               placeholder="輸入地區..."
             />
-            <div className="mt-6 text-xl text-black">社群人數上限</div>
+            <div className="mt-6 ml-3 text-xl text-black">社群人數上限</div>
             <input
               type="text"
               name="groupMemberLimit" // Add name attribute
               className="justify-center items-start self-center px-4 py-3 mt-4 max-w-full text-base font-medium leading-6 whitespace-nowrap rounded-lg border border-solid shadow-sm bg-neutral-200 border-neutral-200 text-zinc-500 w-[325px]"
               placeholder="輸入人數上限..."
             />
-            <div className="mt-6 text-xl text-black">社群規則資訊說明</div>
+            <div className="mt-6 ml-3 text-xl text-black">社群規則資訊說明</div>
             <input
               type="text"
               name="groupRules"
               className="justify-center items-start self-center px-4 py-3 mt-4 max-w-full text-base font-medium leading-6 whitespace-nowrap rounded-lg border border-solid shadow-sm bg-neutral-200 border-neutral-200 text-zinc-500 w-[325px]"
               placeholder="輸入說明與規則..."
             />
-            <div className="shrink-0 mt-6 h-px bg-black border border-black border-solid" />
+            <div className="shrink-0 mt-10 h-px bg-black border border-black border-solid" />
             <div className="z-10 shrink-0 h-px bg-black border border-black border-solid" />
-            <button type="submit" className="justify-center self-center px-4 py-3 mt-6 text-base font-medium leading-6 text-center text-black whitespace-nowrap bg-yellow-400 rounded-lg border border-solid shadow-sm border-neutral-200">
+            <button type="submit" className="justify-center self-center px-4 py-3 mt-10 text-base font-medium leading-6 text-center text-black whitespace-nowrap bg-yellow-400 rounded-lg border border-solid shadow-sm border-neutral-200">
               <Link to="/SearchFood/1">
                 完成建立社群
               </Link>

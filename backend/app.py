@@ -5,12 +5,11 @@ import psycopg2
 from datetime import datetime
 import random
 import string
-
+import base64  # for img
 
 # Connect to PostgreSQL and fetch data
-# with open('db_password.txt', 'r') as file:
-#     db_password = file.read().strip()
-db_password = 'gian6666$'
+with open('db_password.txt', 'r') as file:
+    db_password = file.read().strip()
 dbname = 'GO'
 
 app = Flask(__name__)
@@ -26,11 +25,25 @@ def search_good():
     data = request.get_json()
     searchTerm = data.get('searchGood')  # the search input
 
-    query_result = []  # result from db
+    # print("searchGood")
+    # connect to db
+    psql_conn = psycopg2.connect(
+        f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    cursor = psql_conn.cursor()
+
+    query = """
+            select gd.goods_id, gd.goods_picture, gd.goods_name, gp.group_name, gp.group_location from goods as gd
+            join go_activity as ga on ga.goods_id = gd.goods_id
+            join groups as gp on gp.group_id = ga.group_id
+            where gd.goods_name like %s
+            """
+    cursor.execute(query, ('%' + searchTerm + '%',))
+
+    query_result = cursor.fetchall()  # result from db
     result = [
         {
             "id": row[0],
-            "image": row[1],
+            "image": base64.b64encode(row[1]).decode('utf-8') if row[1] else None,
             "title": row[2],
             "group": row[3],
             "groupAddress": row[4]
@@ -48,11 +61,28 @@ def search_groups():
     data = request.get_json()
     searchTerm = data.get('searchPlace')  # the search input
 
-    query_result = []  # result from db
+    # print("searchGroup")
+    # connect to db
+    psql_conn = psycopg2.connect(
+        f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    cursor = psql_conn.cursor()
+
+    query = """
+            SELECT g.group_id, g.group_picture, g.group_name, g.group_location, 
+                COUNT(DISTINCT bp.buyer_id) + COUNT(DISTINCT sp.seller_id) AS cntMember
+            FROM groups AS g
+            LEFT JOIN buyer_participation AS bp ON bp.group_id = g.group_id
+            LEFT JOIN seller_participation AS sp ON sp.group_id = g.group_id
+            WHERE g.group_location LIKE %s
+            GROUP BY g.group_id
+            """
+    cursor.execute(query, ('%' + searchTerm + '%',))
+
+    query_result = cursor.fetchall()  # result from db
     result = [
         {
             "id": row[0],
-            "image": row[1],
+            "image": base64.b64encode(row[1]).decode('utf-8') if row[1] else None,
             "title": row[2],
             "address": row[3],
             "memberAmount": row[4]

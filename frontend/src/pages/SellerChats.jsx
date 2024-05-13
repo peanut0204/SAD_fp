@@ -151,19 +151,14 @@ function SellerChats() {
     return (
         <div className="flex flex-col gap-0 pb-20 mx-auto w-full bg-white max-w-[480px]">
             {" "}
-            <header className="items-center px-3 pt-20 pb-3.5 w-full text-3xl text-black whitespace-nowrap bg-yellow-400">
+            <header className="flex gap-5 items-start px-4 pt-20 pb-4 w-full text-3xl bg-yellow-400">
                 <button>
-                    <Link to="/SellerOffice/1">
-                        <img
-                            loading="lazy"
-                            src="https://cdn.builder.io/api/v1/image/assets/TEMP/24edf058b578a35dd93bf699fe724d82806d3188532ec241304c9738697f137a?apiKey=96372eeb149147dbb6ed64bcf7ffb73b&"
-                            className="shrink-0 w-6 aspect-square"
-                        />
-                    </Link>
+                    <a href="../SellerOffice/1">
+                        <img loading="lazy" src="https://cdn.builder.io/api/v1/image/assets/TEMP/0985f90a1c268de1453e96392357b86d4e1d1e025d9162ea01e8c89b45c6a4ff?apiKey=96372eeb149147dbb6ed64bcf7ffb73b&" alt="Search icon" className="shrink-0 gap-0 aspect-square w-[35px]" />
+                    </a>
                 </button>
-                {" "}
-                聊聊{" "}
-            </header>{" "}
+                <h1 className="flex-auto">與買家聊聊</h1>
+            </header>
             <main className="flex z-10 flex-col gap-0 justify-end pt-6 pr-6 pl-2.5 -mt-5 w-full">
                 {" "}
                 {messages.map((message) => (
