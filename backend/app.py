@@ -8,9 +8,9 @@ import string
 import base64  # for img
 
 # Connect to PostgreSQL and fetch data
-# with open('db_password.txt', 'r') as file:
-#     db_password = file.read().strip()
-db_password = 'gian6666$'
+with open('db_password.txt', 'r') as file:
+    db_password = file.read().strip()
+
 dbname = 'GO'
 
 app = Flask(__name__)
