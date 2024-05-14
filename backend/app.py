@@ -17,18 +17,7 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 # CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-
-
-with open('db_password.txt', 'r') as file:
-    db_password = file.read().strip()
-
-dbname = 'GO'
-
 # 1. search by good
-
-
-
-
 @app.route('/api/searchGood', methods=['POST'])
 def search_good():
     data = request.get_json()
@@ -79,9 +68,6 @@ def search_good():
     return jsonify(result)
 
 # 2. search group by place
-
-
-
 
 @app.route('/api/searchGroup', methods=['POST'])
 def search_groups():
@@ -140,9 +126,6 @@ def search_groups():
 
 # 3. get all ads
 
-
-
-
 @app.route('/api/getAllAds', methods=['GET'])
 def get_all_ads():
 
@@ -162,9 +145,6 @@ def get_all_ads():
 
 # 4. join group
 
-
-
-
 @app.route('/api/joinGroup', methods=['POST'])
 def join_group():
     data = request.get_json()
@@ -176,7 +156,6 @@ def join_group():
 
 # 5. get all groups that user joined (MyGroup.jsx) Lee
 
-
 app = Flask(__name__)
 
 
@@ -228,64 +207,6 @@ def get_joined_groups(memberId):
     except Exception as e:
         print("Error:", e)
         return jsonify({'error': 'An error occurred'}), 500
-
-
-# 5. get all groups that user joined (MyGroup.jsx) Lee
-
-
-app = Flask(__name__)
-
-
-@app.route('/api/getJoinedGroups/<memberId>', methods=['GET'])
-@cross_origin()
-def get_joined_groups(memberId):
-    print(memberId)
-    try:
-        # connect to database
-        try:
-            psql_conn = psycopg2.connect(
-                f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
-            cursor = psql_conn.cursor()
-
-            query = '''SELECT
-                        g.group_id,
-                        g.group_name,
-                        g.group_location,
-                        g.group_picture
-                    FROM
-                        groups g
-                    JOIN
-                        buyer_participation bp ON g.group_id = bp.group_id
-                    WHERE
-                        bp.buyer_id = %s; '''
-
-            cursor.execute(query, (memberId,))
-            query_result = cursor.fetchall()
-
-            result = [
-                {
-                    "group_id": row[0],
-                    "group_name": row[1],
-                    "group_location": row[2],
-                    "group_picture": row[3],
-                }
-                for row in query_result
-            ]
-            cursor.close()
-            psql_conn.close()
-            print(jsonify(result), type(jsonify(result)))
-
-        except Exception as e:
-            print("Database error:", e)
-            return jsonify({'error': 'Database error'}), 500
-
-        return jsonify(result)
-
-    except Exception as e:
-        print("Error:", e)
-        return jsonify({'error': 'An error occurred'}), 500
-
-
 
 
 
@@ -361,6 +282,7 @@ def search_groups_myOrder():
     return jsonify(result)
 
 @app.route('/api/orderState', methods=['POST'])
+@cross_origin()
 def search_groups_orderState():
     if request.method == 'POST':
         # 從表單中獲取搜索關鍵字
