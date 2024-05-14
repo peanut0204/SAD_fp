@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 import pandas as pd
 import psycopg2
 from datetime import datetime
@@ -8,13 +8,14 @@ import string
 import base64  # for img
 
 # Connect to PostgreSQL and fetch data
-with open('db_password.txt', 'r') as file:
-    db_password = file.read().strip()
+# with open('db_password.txt', 'r') as file:
+#     db_password = file.read().strip()
+db_password = 'gian6666$'
 dbname = 'GO'
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+# CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 
 # 1. search by good
@@ -128,9 +129,10 @@ def join_group():
 app = Flask(__name__)
 
 
-@app.route('/api/getJoinedGroups/<buyer_id>', methods=['GET'])
-def get_joined_groups(buyer_id):
-    print(buyer_id)
+@app.route('/api/getJoinedGroups/<memberId>', methods=['GET'])
+@cross_origin()
+def get_joined_groups(memberId):
+    print(memberId)
     try:
         # connect to database
         try:
@@ -150,7 +152,7 @@ def get_joined_groups(buyer_id):
                     WHERE
                         bp.buyer_id = %s; '''
 
-            cursor.execute(query, (buyer_id,))
+            cursor.execute(query, (memberId,))
             query_result = cursor.fetchall()
 
             result = [

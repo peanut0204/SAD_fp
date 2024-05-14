@@ -7,7 +7,7 @@ function MyGroup() {
   const navigate = useNavigate();
 
   const goToGroupRoom = (groupId) => {
-    navigate(`/GroupRoom/${buyer_id}/${groupId}`); // 導航到每個社群的專頁
+    navigate(`/GroupRoom/${memberId}/${groupId}`); // 導航到每個社群的專頁
   };
 
   const goBack = () => {
@@ -57,21 +57,16 @@ function MyGroup() {
   //   }
   // }
 
-  // const { buyer_id } = useParams();
-  const buyer_id = 'Buffet@gmail.com.tw';
-  console.log(buyer_id);
+  const { memberId } = useParams();
+  // const buyer_id = 'Buffet@gmail.com.tw';
+  console.log(memberId);
   const [communities, setCommunities] = useState([]);
 
   useEffect(() => {
 
     const fetchData = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:5000/api/getJoinedGroups/${buyer_id}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        });
+        const response = await fetch(`http://localhost:5000/api/getJoinedGroups/${memberId}`);
 
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -85,7 +80,7 @@ function MyGroup() {
     };
 
     fetchData();
-  }, [buyer_id]);
+  }, [memberId]);
   //--------------------------------------------------------------------------------------------------------------
   // const [communities, setCommunities] = useState([]);
   // // const buyer_id = 'Buffet@gmail.com.tw';
