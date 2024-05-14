@@ -1,6 +1,6 @@
 import React from 'react';
 
-function ChatRoom() {
+function SellerChats() {
   // Placeholder for navigation and state handling
   const contactor = {
     name: "Mr.nomame",
@@ -62,4 +62,4 @@ function ChatRoom() {
 
 }
 
-export default ChatRoom;
+export default SellerChats;

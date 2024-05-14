@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import coverImg from '../images/cover.png';
 
 const theme = createTheme({
   palette: {
@@ -75,11 +74,10 @@ function Login() {
 
     <div style={{ backgroundColor: '#F1C010', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#5e3f26' }}>
       <ThemeProvider theme={theme}>
-        {/* <div style={{ backgroundColor: 'white', borderRadius: '10px', padding: '50px', width: '60%', marginTop: '50px', marginBottom: '50px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}> */}
-          {/* <h1 className="text-5xl font-bold mb-20"  >Login Page</h1> */}
+        <div style={{ backgroundColor: 'white', borderRadius: '10px', padding: '50px', width: '60%', marginTop: '50px', marginBottom: '50px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <h1 className="text-5xl font-bold mb-20"  >Login Page</h1>
           {/* <NumberInputForm onSubmit={handleFormSubmit} /> */}
           {/* <pre className="mt-4">{JSON.stringify(dataframe, null, 2)}</pre> */}
-          <img src={coverImg} alt="Cover" />
           <form onSubmit={handleSubmit}  >
             <div className="flex flex-col items-center gap-4">
               <label className="flex">
@@ -112,7 +110,7 @@ function Login() {
           </div>
 
 
-        {/* </div> */}
+        </div>
         {/* for test use */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '50px', backgroundColor: 'white', padding: '20px' }}>
           <p>(For test use)</p>
