@@ -123,12 +123,19 @@ function SearchFood() {
 		if (data.success) {
 			console.log('Login successful');
 			setMessage(data.message);
+
 		}
 		else {
 			console.log('Login failed');
 			setMessage(data.message);
 
 		}
+		//////////chen_new
+		// Join successful, clear message after a delay
+		setTimeout(() => {
+			console.log('setMessage called')
+			setMessage('');
+		}, 2000); // Clear message after 2 seconds
 	};
 
 
@@ -208,7 +215,7 @@ function SearchFood() {
 									<h2 className="text-xl font-bold mb-1">{group.title}</h2>
 									<p>{group.address}</p>
 									<p>{group.memberAmount}</p>
-									<Button variant="contained" color="secondary" style={{ height: '40px', fontSize: '15px' }} onClick={handleJoinGroup(group.id)} >加入</Button>
+									<Button variant="contained" color="secondary" style={{ height: '40px', fontSize: '15px' }} onClick={() => handleJoinGroup(group.id)} >加入</Button>
 									{message && <p color='primary'>{message}</p>}
 
 								</div>

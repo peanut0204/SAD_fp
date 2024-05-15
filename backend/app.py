@@ -124,35 +124,86 @@ def search_groups():
 
     return jsonify(result)
 
-# 3. get all ads
-
+# 3. get all ads #######ok
 @app.route('/api/getAllAds', methods=['GET'])
 def get_all_ads():
 
-    query_result = [[]]  # result from db
-    query_result = [[]]  # result from db
-    result = [
-        {
-            "id": row[0],
-            "image": row[1]
+    print("good_connect")
+    psql_conn = psycopg2.connect(f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    cursor = psql_conn.cursor()
 
+    query = """
+                Select ad_id, ad_picture from ad;
+		    """
+    cursor.execute(query)
 
-        }
-        for row in query_result
-    ]
+    query_result = cursor.fetchall() # result from db
+
+    result=[]
+    
+    for row in query_result:
+        ad_id = row[0]
+        ad_image_binary = row[1]
+
+    if ad_image_binary is not None:
+        # chagne to base 64
+        image_base64 = base64.b64encode(ad_image_binary).decode()
+    else:
+        image_base64 = None
+
+    result.append({
+        "id": ad_id,
+        "image": image_base64
+    })
 
     return jsonify(result)
 
 # 4. join group
-
 @app.route('/api/joinGroup', methods=['POST'])
 def join_group():
     data = request.get_json()
+ 
     groupId = data.get('groupId')
-    memberId = data.get('userId')
+    memberId = data.get('memberId')
+
+    try:
+        # connect to PostgreSQL
+        psql_conn = psycopg2.connect(f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+        cursor = psql_conn.cursor()
+
+        chek_query = """
+                select * From buyer_participation
+                where buyer_id = %s and group_id = %s
+
+        """
+        cursor.execute(chek_query,(memberId,groupId))
+        existing_row = cursor.fetchone()
+
+        if existing_row:
+            # if already in
+            return jsonify({'success': True, 'message': 'Group Already Joined'}), 200
+        else:
+            # then_insert
+            insert_query = "INSERT INTO buyer_participation VALUES (%s, %s)"
+            cursor.execute(insert_query,(memberId,groupId))
+            psql_conn.commit()
+    
+            # return
+            return jsonify({'success': True, 'message': 'Join Success'}), 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': 'Internal Server Error'}), 500
+
+    finally:
+        # close connection
+        if psql_conn:
+            psql_conn.close()
+
 
     # or return jsonify({'success': False, 'message': 'Group Already Joined'}), 400
     return jsonify({'success': True, 'message': 'Join Success'}), 200
+
 
 # 5. get all groups that user joined (MyGroup.jsx) Lee
 
