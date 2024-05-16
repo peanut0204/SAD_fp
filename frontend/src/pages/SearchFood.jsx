@@ -25,8 +25,8 @@ function SearchFood() {
 	const [searchPlace, setSearchPlace] = useState('');
 	// const [searchType, setSearchType] = useState('all');
 	// const [searchResults, setSearchResults] = useState([]);
-	const [setSearchGoodResults] = useState([]);
-	const [setSearchPlaceResults] = useState([]);
+	const [searchGoodResults, setSearchGoodResults] = useState([]);
+	const [searchPlaceResults, setSearchPlaceResults] = useState([]);
 	const [isSearchGoodClicked, setIsSearchGoodClicked] = useState(false);
 	const [isSearchPlaceClicked, setIsSearchPlaceClicked] = useState(false);
 	const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -123,12 +123,19 @@ function SearchFood() {
 		if (data.success) {
 			console.log('Login successful');
 			setMessage(data.message);
+
 		}
 		else {
 			console.log('Login failed');
 			setMessage(data.message);
 
 		}
+		//////////chen_new
+		// Join successful, clear message after a delay
+		setTimeout(() => {
+			console.log('setMessage called')
+			setMessage('');
+		}, 2000); // Clear message after 2 seconds
 	};
 
 
@@ -184,8 +191,8 @@ function SearchFood() {
 					{/* list found food or gorups and list advertisements when no search */}
 					{isSearchGoodClicked ? (
 						<>
-							<p>{searchGood.length} goods found</p>
-							{searchGood.map((good, index) => (
+							<p>{searchGoodResults.length} goods found</p>
+							{searchGoodResults.map((good, index) => (
 								<div key={index} className="p-6 m-2 border rounded" style={{ width: '80%' }} >
 									{good.image && <img src={`data:image/jpeg;base64,${good.image}`} alt={good.id} />}
 									<Link to={`/ProductInfo/${memberId}/${good.id}`}>
@@ -201,14 +208,14 @@ function SearchFood() {
 						</>
 					) : isSearchPlaceClicked ? (
 						<>
-							<p>{searchPlace.length} groups found</p>
-							{searchPlace.map((group, index) => (
+							<p>{searchPlaceResults.length} groups found</p>
+							{searchPlaceResults.map((group, index) => (
 								<div key={index} className="p-6 m-2 border rounded" style={{ width: '80%' }} >
 									{group.image && <img src={`data:image/jpeg;base64,${group.image}`} alt={group.id} />}
 									<h2 className="text-xl font-bold mb-1">{group.title}</h2>
 									<p>{group.address}</p>
 									<p>{group.memberAmount}</p>
-									<Button variant="contained" color="secondary" style={{ height: '40px', fontSize: '15px' }} onClick={handleJoinGroup(group.id)} >加入</Button>
+									<Button variant="contained" color="secondary" style={{ height: '40px', fontSize: '15px' }} onClick={() => handleJoinGroup(group.id)} >加入</Button>
 									{message && <p color='primary'>{message}</p>}
 
 								</div>
