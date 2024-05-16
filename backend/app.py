@@ -18,6 +18,8 @@ CORS(app)  # Enable CORS for all routes
 # CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # 1. search by good
+
+
 @app.route('/api/searchGood', methods=['POST'])
 @cross_origin()
 def search_good():
@@ -69,6 +71,7 @@ def search_good():
     return jsonify(result)
 
 # 2. search group by place
+
 
 @app.route('/api/searchGroup', methods=['POST'])
 @cross_origin()
@@ -127,12 +130,15 @@ def search_groups():
     return jsonify(result)
 
 # 3. get all ads #######ok
+
+
 @app.route('/api/getAllAds', methods=['GET'])
 @cross_origin()
 def get_all_ads():
 
     print("good_connect")
-    psql_conn = psycopg2.connect(f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    psql_conn = psycopg2.connect(
+        f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
     cursor = psql_conn.cursor()
 
     query = """
@@ -140,10 +146,10 @@ def get_all_ads():
 		    """
     cursor.execute(query)
 
-    query_result = cursor.fetchall() # result from db
+    query_result = cursor.fetchall()  # result from db
 
-    result=[]
-    
+    result = []
+
     for row in query_result:
         ad_id = row[0]
         ad_image_binary = row[1]
@@ -162,17 +168,20 @@ def get_all_ads():
     return jsonify(result)
 
 # 4. join group
+
+
 @app.route('/api/joinGroup', methods=['POST'])
 @cross_origin()
 def join_group():
     data = request.get_json()
- 
+
     groupId = data.get('groupId')
     memberId = data.get('memberId')
 
     try:
         # connect to PostgreSQL
-        psql_conn = psycopg2.connect(f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+        psql_conn = psycopg2.connect(
+            f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
         cursor = psql_conn.cursor()
 
         chek_query = """
@@ -180,7 +189,7 @@ def join_group():
                 where buyer_id = %s and group_id = %s
 
         """
-        cursor.execute(chek_query,(memberId,groupId))
+        cursor.execute(chek_query, (memberId, groupId))
         existing_row = cursor.fetchone()
 
         if existing_row:
@@ -189,9 +198,9 @@ def join_group():
         else:
             # then_insert
             insert_query = "INSERT INTO buyer_participation VALUES (%s, %s)"
-            cursor.execute(insert_query,(memberId,groupId))
+            cursor.execute(insert_query, (memberId, groupId))
             psql_conn.commit()
-    
+
             # return
             return jsonify({'success': True, 'message': 'Join Success'}), 200
 
@@ -203,7 +212,6 @@ def join_group():
         # close connection
         if psql_conn:
             psql_conn.close()
-
 
     # or return jsonify({'success': False, 'message': 'Group Already Joined'}), 400
     return jsonify({'success': True, 'message': 'Join Success'}), 200
@@ -336,18 +344,14 @@ def get_group_product(groupId):
         return jsonify({'error': 'An error occurred'}), 500
 
 
-
-
-
 # Oliver
 # seller search group by keywords
 @app.route('/api/sellerSearchGroup', methods=['POST'])
-def search_groups():
+def seller_search_groups():
     data = request.get_json()
     searchTerm = data.get('searchKeyword')  # the search input
 
-    
-    query_result = [] # result from db
+    query_result = []  # result from db
     result = [
         {
             "id": row[0],
@@ -361,14 +365,15 @@ def search_groups():
 
     return jsonify(result)
 
+
 def fetch_orders(keyword):
 
     if keyword is None:
         return []  # 如果為空，直接返回空列表或其他適當的值
-    
+
     conn = psycopg2.connect(
         f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
-    
+
     cur = conn.cursor()
     # 執行 SQL 查詢
     cur.execute(
@@ -389,12 +394,14 @@ def fetch_orders(keyword):
     return query_result
 
 # seller search group to see orders' current state
+
+
 @app.route('/api/myOrder', methods=['POST'])
 def search_groups_myOrder():
     data = request.get_json()
     searchTerm = data.get('searchKeyword')  # the search input
 
-     # 從資料庫中取得訂單資訊
+    # 從資料庫中取得訂單資訊
     query_result = fetch_orders(searchTerm)
 
     # 格式化查詢結果
@@ -407,6 +414,7 @@ def search_groups_myOrder():
     ]
 
     return jsonify(result)
+
 
 @app.route('/api/orderState', methods=['POST'])
 @cross_origin()
@@ -451,12 +459,9 @@ def search_groups_orderState():
 #         for row in query_result
 #     ]
 #     print(result)
-    
+
 #     return jsonify(result)
 
-
-# seller add product
-# @app.route('/api/sellerSearchGroup', methods=['GET'])
 
 if __name__ == '__main__':
     app.run(debug=True)
