@@ -1,0 +1,45 @@
+.box {
+    border: 2px solid #ccc;
+    /* 灰色边框 */
+    padding: 15px;
+    margin-bottom: 20px;
+    /* 与下一个元素的间距 */
+    width: 100%;
+    /* 宽度调整为100% */
+    border-radius: 10px;
+    /* 边框圆角 */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    /* 过渡效果 */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.box:hover {
+    transform: translateY(-5px) scale(1.03);
+    /* 鼠标悬停时向上移动并稍微放大 */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    /* 添加阴影，增加深度感 */
+}
+
+.box img {
+    width: 100%;
+    /* 图片宽度 */
+    height: 150px;
+    /* 图片高度 */
+    object-fit: cover;
+    /* 覆盖整个内容区域 */
+    object-position: center top;
+    /* 图片上半部分显示 */
+    border-radius: 10px;
+    /* 图片边框圆角 */
+}
+
+.box h3 {
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.box p {
+    text-align: left;
+}
