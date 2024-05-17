@@ -59,7 +59,7 @@ def search_good():
     result = [
         {
             "id": row[0],
-            "image": base64.b64encode(row[1]).decode('utf-8') if row[1] else None,
+            #"image": base64.b64encode(row[1]).decode('utf-8') if row[1] else None,
             "image": base64.b64encode(row[1]).decode('utf-8') if row[1] else None,
             "title": row[2],
             "group": row[3],
