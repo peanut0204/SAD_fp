@@ -345,17 +345,76 @@ def get_group_product(groupId):
 
 
 # Oliver
-# seller search group by keywords
-@app.route('/api/sellerSearchGroup', methods=['POST'])
-def seller_search_groups():
-    data = request.get_json()
-    searchTerm = data.get('searchKeyword')  # the search input
+# seller search group by good
 
-    query_result = []  # result from db
+@app.route('/api/sellerSearchGood', methods=['POST'])
+@cross_origin()
+def seller_search_good():
+    data = request.get_json()
+    searchTerm = data.get('searchGood')  # the search input
+
+    # print("searchGood")
+    # connect to db
+    psql_conn = psycopg2.connect(
+        f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    cursor = psql_conn.cursor()
+
+    query = """
+            select gd.goods_id, gd.goods_picture, gd.goods_name, gp.group_name, gp.group_location from goods as gd
+            join go_activity as ga on ga.goods_id = gd.goods_id
+            join groups as gp on gp.group_id = ga.group_id
+            where gd.goods_name like %s
+            """
+    cursor.execute(query, ('%' + searchTerm + '%',))
+
+    query_result = cursor.fetchall()  # result from db
+    
     result = [
         {
             "id": row[0],
-            "image": row[1],
+            "image": base64.b64encode(row[1]).decode('utf-8') if row[1] else None,
+            # "image": base64.b64encode(row[1]).decode('utf-8') if row[1] else None,
+            "title": row[2],
+            "group": row[3],
+            "groupAddress": row[4]
+        }
+        for row in query_result
+    ]
+
+    return jsonify(result)
+
+
+# seller search group by places
+@app.route('/api/sellerSearchGroup', methods=['POST'])
+@cross_origin()
+def seller_search_groups():
+    data = request.get_json()
+    searchTerm = data.get('searchPlace')  # the search input
+
+    # print("searchGroup")
+    # connect to db
+    psql_conn = psycopg2.connect(
+        f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    cursor = psql_conn.cursor()
+
+    query = """
+            SELECT g.group_id, g.group_picture, g.group_name, g.group_location, 
+                COUNT(DISTINCT bp.buyer_id) + COUNT(DISTINCT sp.seller_id) AS cntMember
+            FROM groups AS g
+            LEFT JOIN buyer_participation AS bp ON bp.group_id = g.group_id
+            LEFT JOIN seller_participation AS sp ON sp.group_id = g.group_id
+            WHERE g.group_location LIKE %s 
+            GROUP BY g.group_id
+            """
+    cursor.execute(query, ('%' + searchTerm + '%',))
+
+    query_result = cursor.fetchall()  # result from db
+    
+    result = [
+        {
+            "id": row[0],
+            "image": base64.b64encode(row[1]).decode('utf-8') if row[1] else None,
+            # "image": base64.b64encode(row[1]).decode('utf-8') if row[1] else None,
             "title": row[2],
             "address": row[3],
             "memberAmount": row[4]
@@ -365,7 +424,7 @@ def seller_search_groups():
 
     return jsonify(result)
 
-
+# function used in myOrder and orderState 
 def fetch_orders(keyword):
 
     if keyword is None:
@@ -408,7 +467,10 @@ def search_groups_myOrder():
     result = [
         {
             # 訂單id、訂購社群、image、數量、單價、總價
-            "group_name": row[0]
+            "group_id": row[0],
+            "group_name": row[1],
+            "group_location": row[2],
+            "group_picture": row[3]
         }
         for row in query_result
     ]
@@ -417,7 +479,7 @@ def search_groups_myOrder():
 
 
 @app.route('/api/orderState', methods=['POST'])
-@cross_origin()
+# @cross_origin()
 def search_groups_orderState():
     if request.method == 'POST':
         # 從表單中獲取搜索關鍵字
@@ -442,26 +504,71 @@ def search_groups_orderState():
         # 返回一個示例響應
         return jsonify(result)
 
-# @app.route('/api/orderState', methods=['POST'])
-# def search_groups_orderState():
-#     data = request.get_json()
-#     searchTerm = data.get('searchKeyword')  # the search input
 
-#      # 從資料庫中取得訂單資訊
-#     query_result = fetch_orders(searchTerm)
+import uuid
+import random
+import psycopg2
 
-#     # 格式化查詢結果
-#     result = [
-#         {
-#             # 應要有訂單id、訂購社群、image、數量、單價、總價
-#             "group_name": row[0]
-#         }
-#         for row in query_result
-#     ]
-#     print(result)
+# 產生不重複的 ID
+def generate_unique_id(cur):
+    while True:
+        # Generate a random 10-digit number
+        group_id = ''.join([str(random.randint(0, 9)) for _ in range(10)])
+        
+        # Check if this ID already exists in the database
+        cur.execute("SELECT 1 FROM GROUPS WHERE GROUP_ID = %s", (group_id,))
+        if not cur.fetchone():
+            # If no record exists with this ID, it's unique
+            return group_id
 
-#     return jsonify(result)
+# build group
+# @app.route('/api/buildGroup/<member_id>', methods=['POST'])
+# def build_group(member_id):
+@app.route('/api/buildGroup', methods=['POST'])
+def build_group():
+    try:
+        # 从前端发送的请求中获取 JSON 数据
+        group_info = request.get_json()
+        print("Received group info:", group_info)  # 添加这行以检查是否正确收到了 JSON 数据
 
+        # 连接到 PostgreSQL
+        psql_conn = psycopg2.connect(
+            "dbname='" + dbname + "' user='postgres' host='localhost' password='" + db_password + "'")
+        cur = psql_conn.cursor()
+        print("Database connected successfully!")
+
+        # Generate a unique 10-digit ID
+        group_id = generate_unique_id(cur)
+        print("Generated unique 10-digit ID:", group_id)
+
+        # 获取书籍信息中的各个字段
+        group_name = group_info.get('name')
+        group_cover = group_info.get('cover')
+        group_location = group_info.get('location')
+        group_member_limit = group_info.get('member_limit')
+        group_rules = group_info.get('rules')
+
+        # sql = "INSERT INTO REQUEST_GROUP (GROUP_NAME, GROUP_PICTURE, GROUP_LOCATION, GROUP_MEMBER_LIMIT , GROUP_RULES) VALUES (%s, %s, %s, %s, %s)"
+        # data = (group_name, group_cover, group_location, group_member_limit, group_rules)
+
+        # 加入自動生成的 GROUP_ID!!
+        sql = "INSERT INTO GROUPS (GROUP_ID, GROUP_NAME, GROUP_LOCATION, GROUP_PICTURE) VALUES (%s, %s, %s, %s)"
+        data = (group_id, group_name, group_location, group_cover)
+        cur.execute(sql, data)
+        print("SQL executed successfully!")
+        # 提交更改
+        psql_conn.commit()
+
+        # 返回成功的消息给前端
+        return jsonify({"message": "group added successfully!"}), 200
+    except Exception as e:
+        # 如果发生任何错误，回滚更改并返回错误消息给前端
+        psql_conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        # 关闭游标和数据库连接
+        cur.close()
+        psql_conn.close()
 
 if __name__ == '__main__':
     app.run(debug=True)
