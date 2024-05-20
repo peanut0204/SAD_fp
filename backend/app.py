@@ -275,6 +275,7 @@ def get_joined_groups(memberId):
 @cross_origin()
 def get_group_product(groupId):
     print(groupId)
+
     # product = [
     #     {
     #         "group_id": 123456,
@@ -310,7 +311,12 @@ def get_group_product(groupId):
                 f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
             cursor = psql_conn.cursor()
 
-            query = ''''''
+            query = '''select gp.group_id, gp.group_name,
+ gd.goods_picture, gd.goods_name, gd.goods_id, gd.unite_price, gd.tag,
+ gd.seller_id, s.seller_name from groups as gp
+join goods as gd on gd.group_id = gp.group_id
+join seller as s on s.seller_account = gd.seller_id
+where gp.group_id = %s'''
 
             cursor.execute(query, (groupId,))
             query_result = cursor.fetchall()
@@ -319,7 +325,7 @@ def get_group_product(groupId):
                 {
                     "group_id": row[0],
                     "group_name": row[1],
-                    "image": base64.b64encode(row[2]).decode('utf-8') if row[1] else None,
+                    "image": base64.b64encode(row[2]).decode('utf-8') if row[2] else None,
                     "product_name": row[3],
                     "product_id": row[4],
                     "price": row[5],
