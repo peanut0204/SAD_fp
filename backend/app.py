@@ -312,7 +312,12 @@ def get_group_product(groupId):
                 f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
             cursor = psql_conn.cursor()
 
-            query = ''''''
+            query = '''select gp.group_id, gp.group_name,
+		 gd.goods_picture, gd.goods_name, gd.goods_id, gd.unite_price, gd.tag,
+		 gd.seller_id, s.seller_name from groups as gp
+		join goods as gd on gd.group_id = gp.group_id
+		join seller as s on s.seller_account = gd.seller_id
+		where gp.group_id = %s'''
 
             cursor.execute(query, (groupId,))
             query_result = cursor.fetchall()
