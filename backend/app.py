@@ -35,8 +35,7 @@ def search_good():
 
     query = """
             select gd.goods_id, gd.goods_picture, gd.goods_name, gp.group_name, gp.group_location from goods as gd
-            join go_activity as ga on ga.goods_id = gd.goods_id
-            join groups as gp on gp.group_id = ga.group_id
+            join groups as gp on gp.group_id = gd.group_id
             where gd.goods_name like %s
             """
     cursor.execute(query, ('%' + searchTerm + '%',))
@@ -44,19 +43,19 @@ def search_good():
     query_result = cursor.fetchall()  # result from db
     # print("searchGood")
     # connect to db
-    psql_conn = psycopg2.connect(
-        f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
-    cursor = psql_conn.cursor()
+    # psql_conn = psycopg2.connect(
+    #     f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    # cursor = psql_conn.cursor()
 
-    query = """
-            select gd.goods_id, gd.goods_picture, gd.goods_name, gp.group_name, gp.group_location from goods as gd
-            join go_activity as ga on ga.goods_id = gd.goods_id
-            join groups as gp on gp.group_id = ga.group_id
-            where gd.goods_name like %s
-            """
-    cursor.execute(query, ('%' + searchTerm + '%',))
+    # query = """
+    #         select gd.goods_id, gd.goods_picture, gd.goods_name, gp.group_name, gp.group_location from goods as gd
+    #         join go_activity as ga on ga.goods_id = gd.goods_id
+    #         join groups as gp on gp.group_id = ga.group_id
+    #         where gd.goods_name like %s
+    #         """
+    # cursor.execute(query, ('%' + searchTerm + '%',))
 
-    query_result = cursor.fetchall()  # result from db
+    # query_result = cursor.fetchall()  # result from db
     result = [
         {
             "id": row[0],
@@ -100,22 +99,22 @@ def search_groups():
     query_result = cursor.fetchall()  # result from db
     # print("searchGroup")
     # connect to db
-    psql_conn = psycopg2.connect(
-        f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
-    cursor = psql_conn.cursor()
+    # psql_conn = psycopg2.connect(
+    #     f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    # cursor = psql_conn.cursor()
 
-    query = """
-            SELECT g.group_id, g.group_picture, g.group_name, g.group_location,
-                COUNT(DISTINCT bp.buyer_id) + COUNT(DISTINCT sp.seller_id) AS cntMember
-            FROM groups AS g
-            LEFT JOIN buyer_participation AS bp ON bp.group_id = g.group_id
-            LEFT JOIN seller_participation AS sp ON sp.group_id = g.group_id
-            WHERE g.group_location LIKE %s
-            GROUP BY g.group_id
-            """
-    cursor.execute(query, ('%' + searchTerm + '%',))
+    # query = """
+    #         SELECT g.group_id, g.group_picture, g.group_name, g.group_location,
+    #             COUNT(DISTINCT bp.buyer_id) + COUNT(DISTINCT sp.seller_id) AS cntMember
+    #         FROM groups AS g
+    #         LEFT JOIN buyer_participation AS bp ON bp.group_id = g.group_id
+    #         LEFT JOIN seller_participation AS sp ON sp.group_id = g.group_id
+    #         WHERE g.group_location LIKE %s
+    #         GROUP BY g.group_id
+    #         """
+    # cursor.execute(query, ('%' + searchTerm + '%',))
 
-    query_result = cursor.fetchall()  # result from db
+    # query_result = cursor.fetchall()  # result from db
     result = [
         {
             "id": row[0],
