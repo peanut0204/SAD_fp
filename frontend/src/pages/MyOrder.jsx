@@ -1,18 +1,51 @@
-import * as React from "react";
+import React, { useState } from "react";
 
-function SearchBar() {
+function SearchBar({}) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isSearchClicked, setIsSearchClicked] = useState(false);
+  const [orders, setOrders] = useState([]);
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append("searchTerm", searchTerm);
+
+    const response = await fetch('http://127.0.0.1:5000/api/orderState', {
+      method: 'POST',
+      body: formData,
+    });
+    
+    const data = await response.json();
+    setIsSearchClicked(true);
+    console.log(data);
+    setOrders(data);
+  };
+
   return (
     <div className="">
-      <input 
-      className="justify-center items-start self-center px-4 py-3 mt-4 max-w-full text-base font-medium leading-6 whitespace-nowrap rounded-lg border border-solid shadow-sm bg-neutral-200 border-neutral-200 text-zinc-500 w-[200px]" 
-      // onChange={handleChange} 
-      type="text" 
-      name="SearchGroup"
-      placeholder="輸入關鍵字來搜尋社群..."
-      />
-      <button type="submit" className=" px-4 py-3 text-base font-medium leading-6 whitespace-nowrap bg-white rounded-lg border-2 border-solid border-neutral-200 text-zinc-500">
-        搜尋🔍
-      </button>
+      <form onSubmit={handleSearch}>
+        <input 
+          className="justify-center items-start self-center px-4 py-3 mt-4 max-w-full text-base font-medium leading-6 whitespace-nowrap rounded-lg border border-solid shadow-sm bg-neutral-200 border-neutral-200 text-zinc-500 w-[200px]" 
+          // onChange={handleChange} 
+          onChange={e => setSearchTerm(e.target.value)}
+          type="text" 
+          // name="SearchGroup"
+          value={searchTerm}
+          placeholder="輸入關鍵字來搜尋社群..."
+        />
+        <button type="submit" className="px-4 py-3 text-base font-medium leading-6 whitespace-nowrap bg-white rounded-lg border-2 border-solid border-neutral-200 text-zinc-500">
+          搜尋🔍
+        </button>
+      </form>
+      {isSearchClicked && <p> 已找到 {orders.length} 筆訂購： </p>}
+      {orders.map((order, index) => (
+						<div key={index} className="p-6 m-2 border rounded" style={{width: '100%'}} >
+							<p>群組名稱：{order.group_name}</p>
+							<p>團購地址：{order.group_location}</p>
+						</div>
+			))}
+
     </div>
   );
 }
@@ -39,7 +72,7 @@ function OrderItem({ item }) {
       </div>
       <div className="shrink-0 gap-0 mt-3.5 h-px bg-black border border-black border-solid" />
       <button className="justify-center self-center px-2 py-1.5 text-center text-white whitespace-nowrap bg-black rounded-lg border border-solid shadow-sm border-neutral-200 leading-[150%]">
-        安排出貨
+        安排出貨🚛
       </button>
     </div>
   );
@@ -84,6 +117,7 @@ function MyOrder() {
           </a>
         </nav>
         <main>
+          <p>All Items:</p>
           {orderItems.map((item, index) => (
             <OrderItem key={index} item={item} />
           ))}
