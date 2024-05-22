@@ -12,7 +12,7 @@ import datetime
 with open('db_password.txt', 'r') as file:
     db_password = file.read().strip()
 
-dbname = 'GO'
+dbname = 'sad_fp'
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
