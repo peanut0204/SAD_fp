@@ -18,9 +18,77 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 # CORS(app, resources={r"/api/*": {"origins": "*"}})
 
+
+# Login
+@app.route('/api/login', methods=['POST'])
+def login():
+
+    # Get parameters from the JSON request data
+    data = request.get_json()
+
+    # Extract account and password from the request data
+    account = data.get('account')
+    password = data.get('password')
+
+    # Validate if account and password are present in the request
+    if not account or not password:
+        return jsonify({'success': False, 'message': 'Account and password are required'}), 400
+
+    # Fetch data from the database using a prepared statement to prevent SQL injection
+    try:
+        psql_conn = psycopg2.connect(
+            "dbname='"+dbname+"' user='postgres' host='localhost' password=" + db_password)
+        
+        query = "SELECT b.buyer_password FROM buyer AS b WHERE b.buyer_account = '" + account + "'"
+        df = pd.read_sql_query(query, psql_conn)
+        psql_conn.close()
+        # with psql_conn.cursor() as cursor:
+        # 	cursor.execute("SELECT member_id, status FROM member AS m JOIN member_role AS r ON m.member_id=r.member_id WHERE m.account=%s AND m.password=%s", (account, password))
+        # 	result = cursor.fetchone()
+
+        if not df.empty:
+            if password == df['buyer_password'].values:
+                return jsonify({'success': True, 'memberId': account})
+                
+            else:
+                return jsonify({'success': False, 'message': 'Login failed. Invalid password'})
+        else:
+            return jsonify({'success': False, 'message': 'Login failed. Invalid account'})
+
+    except Exception as e:
+        print("Error during login:", str(e))
+        return jsonify({'success': False, 'message': 'An error occurred during login'}), 500
+
+# Register
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    account = data.get('account')
+    password = data.get('password')
+
+    if not account or not password:
+        return jsonify({'success': False, 'message': 'Account and password are required'}), 400
+    
+    psql_conn = psycopg2.connect(
+        f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    cursor = psql_conn.cursor()
+
+    
+    insert_query = """INSERT INTO MEMBER (member_id, account, password, name, nickname, gender, birthday, status) 
+    VALUES (%s, %s, %s, %s, %s, %s, %s, 'Normal')"""
+
+    insert_query_2 = """INSERT INTO member_role (member_id, role) VALUES (%s, 'User')"""
+
+    cursor.execute(insert_query, (mid, account, password,
+                   name, nickname, gender, birthday))
+    cursor.execute(insert_query_2, (mid,))
+    psql_conn.commit()
+    # or return jsonify({'success': False, 'message': 'Account already registered}), 400
+    # or return jsonify({'success': False, 'message': 'Invalid input fromat'}), 400
+    return jsonify({'success': True, 'message': 'Register success', 'memberId': mid}), 200
+
+
 # 1. search by good
-
-
 @app.route('/api/searchGood', methods=['POST'])
 @cross_origin()
 def search_good():

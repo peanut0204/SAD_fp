@@ -17,6 +17,7 @@ import SellerSearchGroup from './pages/SellerSearchGroup';
 import MyOrder from './pages/MyOrder';
 import SellerChats from './pages/SellerChats';
 import OrderState from './pages/OrderState';
+import Register from './pages/Register';
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" exact element={<Login />} />
+        <Route path="/Register" exact element={<Register />} />
         <Route path="/SearchFood/:memberId" element={<SearchFood />} />
         <Route path="/Notifications/:memberId" element={<Notifications />} />
         <Route path="/MyGroup/:memberId" element={<MyGroup />} />

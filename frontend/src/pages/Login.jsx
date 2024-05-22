@@ -52,13 +52,14 @@ function Login() {
     // Check if login is successful
     if (data.success) {
       console.log('Login successful');
-      console.log('Member ID:', data.memberId);
-      console.log('Identity:', data.identity);
-      if (data.identity === 'Admin') {
-        navigate(`/AdminPage/${data.memberId}`);
-      } else {
-        navigate(`/MyPage/${data.memberId}`);
-      }
+      // console.log('Member ID:', data.memberId);
+      // console.log('Identity:', data.identity);
+      navigate(`/SearchFood/${data.memberId}`)
+      // if (data.identity === 'Admin') {
+      //   navigate(`/AdminPage/${data.memberId}`);
+      // } else {
+      //   navigate(`/MyPage/${data.memberId}`);
+      // }
     }
     else {
       console.log('Login failed');
