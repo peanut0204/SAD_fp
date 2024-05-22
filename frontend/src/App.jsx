@@ -23,24 +23,24 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" exact element={<Login />} /> 
+        <Route path="/" exact element={<Login />} />
         <Route path="/SearchFood/:memberId" element={<SearchFood />} />
         <Route path="/Notifications/:memberId" element={<Notifications />} />
         <Route path="/MyGroup/:memberId" element={<MyGroup />} />
         <Route path="/BuildGroup/:memberId" element={<BuildGroup />} />
         <Route path="/SellerOffice/:memberId" element={<SellerOffice />} />
-        <Route path="/ProductInfo/:memberId/:productId" element={<ProductInfo />} />
-        <Route path="/SellerInfo/:memberId/:otherId" element={<SellerInfo />} />
-        <Route path="/ChatRoom/:memberId/:otherId" element={<ChatRoom />} />
-        <Route path="/ConfirmOrder/:memberId" element={<ConfirmOrder />} />
+        <Route path="/ProductInfo/:memberId/:productId/:sellerId" element={<ProductInfo />} />
+        <Route path="/SellerInfo/:memberId/:sellerId" element={<SellerInfo />} />
+        <Route path="/ChatRoom/:memberId/:sellerId" element={<ChatRoom />} />
+        <Route path="/ConfirmOrder/:memberId/:productId/:sellerId" element={<ConfirmOrder />} />
         <Route path="/GroupRoom/:memberId/:groupId" element={<GroupRoom />} />
         <Route path="/AddProduct/:memberId" element={<AddProduct />} />
         <Route path="/SellerSearchGroup/:memberId" element={<SellerSearchGroup />} />
         <Route path="/MyOrder/:memberId" element={<MyOrder />} />
         <Route path="/SellerChats/:memberId" element={<SellerChats />} />
         <Route path="/OrderState/:memberId" element={<OrderState />} />
-        
-        
+
+
 
         {/* <Route path="/BookInfo/:memberId/:ISBN" element={<BookInfo />} />
         <Route path="/AddBook/:memberId" element={<AddBook />} />

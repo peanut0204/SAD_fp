@@ -6,6 +6,7 @@ import Button from '@mui/material/Button';
 
 function GroupRoom() {
   const navigate = useNavigate();
+  const { memberId } = useParams();
   const { groupId } = useParams();
   const [products, setProducts] = useState([]); // Stores all products
   const [displayedProducts, setDisplayedProducts] = useState([]); // Communities to be displayed
@@ -13,36 +14,6 @@ function GroupRoom() {
   const goBack = () => {
     navigate(-1); // Go back to the previous page
   };
-
-
-  // const product = [
-  //   {
-  //     group_id: 123456,
-  //     group_name: "Group 1",
-  //     image: defaultImageUrl,
-  //     product_name: "香蕉",
-  //     product_id: 1,
-  //     price: 10,
-  //     tag: "水果",
-  //     seller_id: 1,
-  //     seller_name: "Seller 1"
-  //   },
-  //   {
-  //     group_id: 654321,
-  //     group_name: "Group 2",
-  //     image: defaultImageUrl,
-  //     product_name: "手機",
-  //     product_id: 2,
-  //     price: 20,
-  //     tag: "3C",
-  //     seller_id: 2,
-  //     seller_name: "Seller 2"
-  //   }
-  // ];
-
-  // const [products, setProducts] = useState(product);
-
-  // const [setProducts] = useState(); // Stores all products
 
   useEffect(() => {
     const fetchData = async () => {
@@ -79,6 +50,11 @@ function GroupRoom() {
   const handleInputChange = (event) => {
     setSearchQuery(event.target.value);
   };
+
+  const handleProductClick = (productId, sellerId) => {
+    navigate(`/ProductInfo/${memberId}/${productId}/${sellerId}`);
+  };
+
 
 
   return (
@@ -132,7 +108,10 @@ function GroupRoom() {
           </h2>
         )}
         {displayedProducts.map(product => (
-          <div className='box' key={product.product_id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginBottom: '20px' }}>
+          <div className='box'
+            key={product.product_id}
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginBottom: '20px' }}
+            onClick={() => handleProductClick(product.product_id, product.seller_id)}>
             <img src={product.image || defaultImageUrl} alt={product.product_name} style={{ width: '100%', height: 150, objectFit: 'cover', borderRadius: '10px' }} />
             <div style={{ textAlign: 'left' }}>
               <h3 style={{ fontWeight: 'bold', marginTop: 10 }}>{product.product_name}</h3>

@@ -43,3 +43,47 @@
 .box p {
     text-align: left;
 }
+
+/* Container for the seller info and reviews */
+.Vv {
+    width: 380px;
+    height: auto;
+    position: relative;
+    background: white;
+    padding: 20px;
+    margin: auto;
+    /* Center the container if it's not full-width */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    /* Optional: adds shadow for better framing */
+}
+
+/* Style for each review container */
+.review-container {
+    margin: 10px 15px;
+    /* Adds 20px margin on top-bottom and 15px on left-right */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Header within each review */
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+/* Body text within each review */
+.review-body {
+    font-size: 14px;
+    color: #201d1d;
+}
+
+/* Style for star ratings */
+.star-rating {
+    color: gold;
+}
