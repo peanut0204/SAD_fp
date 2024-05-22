@@ -6,6 +6,7 @@ from datetime import datetime
 import random
 import string
 import base64  # for img
+import datetime
 
 # Connect to PostgreSQL and fetch data
 with open('db_password.txt', 'r') as file:
@@ -34,8 +35,7 @@ def search_good():
 
     query = """
             select gd.goods_id, gd.goods_picture, gd.goods_name, gp.group_name, gp.group_location from goods as gd
-            join go_activity as ga on ga.goods_id = gd.goods_id
-            join groups as gp on gp.group_id = ga.group_id
+            join groups as gp on gp.group_id = gd.group_id
             where gd.goods_name like %s
             """
     cursor.execute(query, ('%' + searchTerm + '%',))
@@ -43,23 +43,23 @@ def search_good():
     query_result = cursor.fetchall()  # result from db
     # print("searchGood")
     # connect to db
-    psql_conn = psycopg2.connect(
-        f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
-    cursor = psql_conn.cursor()
+    # psql_conn = psycopg2.connect(
+    #     f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    # cursor = psql_conn.cursor()
 
-    query = """
-            select gd.goods_id, gd.goods_picture, gd.goods_name, gp.group_name, gp.group_location from goods as gd
-            join go_activity as ga on ga.goods_id = gd.goods_id
-            join groups as gp on gp.group_id = ga.group_id
-            where gd.goods_name like %s
-            """
-    cursor.execute(query, ('%' + searchTerm + '%',))
+    # query = """
+    #         select gd.goods_id, gd.goods_picture, gd.goods_name, gp.group_name, gp.group_location from goods as gd
+    #         join go_activity as ga on ga.goods_id = gd.goods_id
+    #         join groups as gp on gp.group_id = ga.group_id
+    #         where gd.goods_name like %s
+    #         """
+    # cursor.execute(query, ('%' + searchTerm + '%',))
 
-    query_result = cursor.fetchall()  # result from db
+    # query_result = cursor.fetchall()  # result from db
     result = [
         {
             "id": row[0],
-            #"image": base64.b64encode(row[1]).decode('utf-8') if row[1] else None,
+            # "image": base64.b64encode(row[1]).decode('utf-8') if row[1] else None,
             "image": base64.b64encode(row[1]).decode('utf-8') if row[1] else None,
             "title": row[2],
             "group": row[3],
@@ -86,7 +86,7 @@ def search_groups():
     cursor = psql_conn.cursor()
 
     query = """
-            SELECT g.group_id, g.group_picture, g.group_name, g.group_location, 
+            SELECT g.group_id, g.group_picture, g.group_name, g.group_location,
                 COUNT(DISTINCT bp.buyer_id) + COUNT(DISTINCT sp.seller_id) AS cntMember
             FROM groups AS g
             LEFT JOIN buyer_participation AS bp ON bp.group_id = g.group_id
@@ -99,27 +99,27 @@ def search_groups():
     query_result = cursor.fetchall()  # result from db
     # print("searchGroup")
     # connect to db
-    psql_conn = psycopg2.connect(
-        f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
-    cursor = psql_conn.cursor()
+    # psql_conn = psycopg2.connect(
+    #     f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    # cursor = psql_conn.cursor()
 
-    query = """
-            SELECT g.group_id, g.group_picture, g.group_name, g.group_location, 
-                COUNT(DISTINCT bp.buyer_id) + COUNT(DISTINCT sp.seller_id) AS cntMember
-            FROM groups AS g
-            LEFT JOIN buyer_participation AS bp ON bp.group_id = g.group_id
-            LEFT JOIN seller_participation AS sp ON sp.group_id = g.group_id
-            WHERE g.group_location LIKE %s
-            GROUP BY g.group_id
-            """
-    cursor.execute(query, ('%' + searchTerm + '%',))
+    # query = """
+    #         SELECT g.group_id, g.group_picture, g.group_name, g.group_location,
+    #             COUNT(DISTINCT bp.buyer_id) + COUNT(DISTINCT sp.seller_id) AS cntMember
+    #         FROM groups AS g
+    #         LEFT JOIN buyer_participation AS bp ON bp.group_id = g.group_id
+    #         LEFT JOIN seller_participation AS sp ON sp.group_id = g.group_id
+    #         WHERE g.group_location LIKE %s
+    #         GROUP BY g.group_id
+    #         """
+    # cursor.execute(query, ('%' + searchTerm + '%',))
 
-    query_result = cursor.fetchall()  # result from db
+    # query_result = cursor.fetchall()  # result from db
     result = [
         {
             "id": row[0],
             "image": base64.b64encode(row[1]).decode('utf-8') if row[1] else None,
-            "image": base64.b64encode(row[1]).decode('utf-8') if row[1] else None,
+            # "image": base64.b64encode(row[1]).decode('utf-8') if row[1] else None,
             "title": row[2],
             "address": row[3],
             "memberAmount": row[4]
@@ -233,7 +233,7 @@ def get_joined_groups(memberId):
                 f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
             cursor = psql_conn.cursor()
 
-            query = '''SELECT g.group_id, g.group_picture, g.group_name, g.group_location, 
+            query = '''SELECT g.group_id, g.group_picture, g.group_name, g.group_location,
                         COUNT(DISTINCT bp.buyer_id) + COUNT(DISTINCT sp.seller_id) AS cntMember
                     FROM groups AS g
                     LEFT JOIN buyer_participation AS bp ON bp.group_id = g.group_id
@@ -275,6 +275,7 @@ def get_joined_groups(memberId):
 @cross_origin()
 def get_group_product(groupId):
     print(groupId)
+
     # product = [
     #     {
     #         "group_id": 123456,
@@ -310,7 +311,12 @@ def get_group_product(groupId):
                 f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
             cursor = psql_conn.cursor()
 
-            query = ''''''
+            query = '''select gp.group_id, gp.group_name,
+		 gd.goods_picture, gd.goods_name, gd.goods_id, gd.unite_price, gd.tag,
+		 gd.seller_id, s.seller_name from groups as gp
+		join goods as gd on gd.group_id = gp.group_id
+		join seller as s on s.seller_account = gd.seller_id
+		where gp.group_id = %s'''
 
             cursor.execute(query, (groupId,))
             query_result = cursor.fetchall()
@@ -319,7 +325,7 @@ def get_group_product(groupId):
                 {
                     "group_id": row[0],
                     "group_name": row[1],
-                    "image": base64.b64encode(row[2]).decode('utf-8') if row[1] else None,
+                    "image": base64.b64encode(row[2]).decode('utf-8') if row[2] is not None else None,
                     "product_name": row[3],
                     "product_id": row[4],
                     "price": row[5],
@@ -368,7 +374,7 @@ def seller_search_good():
     cursor.execute(query, ('%' + searchTerm + '%',))
 
     query_result = cursor.fetchall()  # result from db
-    
+
     result = [
         {
             "id": row[0],
@@ -409,7 +415,7 @@ def seller_search_groups():
     cursor.execute(query, ('%' + searchTerm + '%',))
 
     query_result = cursor.fetchall()  # result from db
-    
+
     result = [
         {
             "id": row[0],
@@ -424,7 +430,9 @@ def seller_search_groups():
 
     return jsonify(result)
 
-# function used in myOrder and orderState 
+# function used in myOrder and orderState
+
+
 def fetch_orders(keyword):
 
     if keyword is None:
@@ -504,71 +512,215 @@ def search_groups_orderState():
         # 返回一個示例響應
         return jsonify(result)
 
+# @app.route('/api/orderState', methods=['POST'])
+# def search_groups_orderState():
+#     data = request.get_json()
+#     searchTerm = data.get('searchKeyword')  # the search input
 
-import uuid
-import random
-import psycopg2
+#      # 從資料庫中取得訂單資訊
+#     query_result = fetch_orders(searchTerm)
 
-# 產生不重複的 ID
-def generate_unique_id(cur):
-    while True:
-        # Generate a random 10-digit number
-        group_id = ''.join([str(random.randint(0, 9)) for _ in range(10)])
-        
-        # Check if this ID already exists in the database
-        cur.execute("SELECT 1 FROM GROUPS WHERE GROUP_ID = %s", (group_id,))
-        if not cur.fetchone():
-            # If no record exists with this ID, it's unique
-            return group_id
+#     # 格式化查詢結果
+#     result = [
+#         {
+#             # 應要有訂單id、訂購社群、image、數量、單價、總價
+#             "group_name": row[0]
+#         }
+#         for row in query_result
+#     ]
+#     print(result)
 
-# build group
-# @app.route('/api/buildGroup/<member_id>', methods=['POST'])
-# def build_group(member_id):
-@app.route('/api/buildGroup', methods=['POST'])
-def build_group():
+#     return jsonify(result)
+
+@app.route('/api/confirmOrder', methods=['POST'])
+@cross_origin()
+def confirm_order():
+    data = request.get_json()
+    productId = data.get('productId')
+    memberId = data.get('memberId')
+    quantity = data.get('quantity')
+    star_rating = data.get('rating')
+    comment = data.get('comment')
+    now = datetime.datetime.now()
+    order_time = now.strftime("%Y-%m-%d %H:%M:%S")
+    order_status = '已下單'
+    # connect to database and insert data
     try:
-        # 从前端发送的请求中获取 JSON 数据
-        group_info = request.get_json()
-        print("Received group info:", group_info)  # 添加这行以检查是否正确收到了 JSON 数据
-
-        # 连接到 PostgreSQL
         psql_conn = psycopg2.connect(
-            "dbname='" + dbname + "' user='postgres' host='localhost' password='" + db_password + "'")
-        cur = psql_conn.cursor()
-        print("Database connected successfully!")
+            f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+        cursor = psql_conn.cursor()
 
-        # Generate a unique 10-digit ID
-        group_id = generate_unique_id(cur)
-        print("Generated unique 10-digit ID:", group_id)
+        query = '''INSERT INTO orders (buyer_id, goods_id, quantity, order_time, order_status, comment, star_rating)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (buyer_id, goods_id)
+                    DO UPDATE SET
+                        order_time = EXCLUDED.order_time,
+                        quantity = orders.quantity + EXCLUDED.quantity,
+                        comment = EXCLUDED.comment,
+                        star_rating = EXCLUDED.star_rating;
+                    '''
 
-        # 获取书籍信息中的各个字段
-        group_name = group_info.get('name')
-        group_cover = group_info.get('cover')
-        group_location = group_info.get('location')
-        group_member_limit = group_info.get('member_limit')
-        group_rules = group_info.get('rules')
-
-        # sql = "INSERT INTO REQUEST_GROUP (GROUP_NAME, GROUP_PICTURE, GROUP_LOCATION, GROUP_MEMBER_LIMIT , GROUP_RULES) VALUES (%s, %s, %s, %s, %s)"
-        # data = (group_name, group_cover, group_location, group_member_limit, group_rules)
-
-        # 加入自動生成的 GROUP_ID!!
-        sql = "INSERT INTO GROUPS (GROUP_ID, GROUP_NAME, GROUP_LOCATION, GROUP_PICTURE) VALUES (%s, %s, %s, %s)"
-        data = (group_id, group_name, group_location, group_cover)
-        cur.execute(sql, data)
-        print("SQL executed successfully!")
-        # 提交更改
+        cursor.execute(query, (memberId, productId, quantity,
+                       order_time, order_status, comment, star_rating,))
         psql_conn.commit()
-
-        # 返回成功的消息给前端
-        return jsonify({"message": "group added successfully!"}), 200
-    except Exception as e:
-        # 如果发生任何错误，回滚更改并返回错误消息给前端
-        psql_conn.rollback()
-        return jsonify({"error": str(e)}), 500
-    finally:
-        # 关闭游标和数据库连接
-        cur.close()
+        cursor.close()
         psql_conn.close()
+
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({'error': 'An error occurred'}), 500
+
+    return jsonify({'success': 'Order confirmed'})
+
+
+# get product info from backend (ConfirmOrder.jsx)
+@app.route('/api/getProductInfo/<productId>', methods=['GET'])
+@cross_origin()
+def get_product_info(productId):
+    # data = request.get_json()
+    # productId = data.get('productId')
+    try:
+        # connect to database
+        try:
+            psql_conn = psycopg2.connect(
+                f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+            cursor = psql_conn.cursor()
+
+            query = '''SELECT goods_picture, goods_name, unite_price, seller_name, groups.group_location, goods_description
+                        FROM goods g
+                        JOIN seller s ON g.seller_id = s.seller_account
+						JOIN groups On g.group_id = groups.group_id
+                        WHERE g.goods_id = %s '''
+
+            cursor.execute(query, (productId,))
+            query_result = cursor.fetchall()
+
+            result = [
+                {
+                    "image": base64.b64encode(row[0]).decode('utf-8') if row[0] else None,
+                    "product_name": row[1],
+                    "price": row[2],
+                    "seller_name": row[3],
+                    "group_location": row[4],
+                    "description": row[5]
+                }
+                for row in query_result
+            ]
+            cursor.close()
+            psql_conn.close()
+            print(jsonify(result), type(jsonify(result)))
+
+        except Exception as e:
+            print("Database error:", e)
+            return jsonify({'error': 'Database error'}), 500
+
+        return jsonify(result)
+
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({'error': 'An error occurred'}), 500
+
+# get seller info by sellerId
+
+
+@app.route('/api/getSellerInfo/<sellerId>', methods=['GET'])
+@cross_origin()
+def get_seller_info(sellerId):
+    try:
+        # connect to database
+        try:
+            psql_conn = psycopg2.connect(
+                f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+            cursor = psql_conn.cursor()
+
+            query = '''SELECT s.seller_name,
+                        s.seller_phonenumber,
+                        s.seller_picture,
+                        o.star_rating,
+                        o.comment,
+                        o.order_time
+                    FROM seller s
+                    JOIN goods g ON s.seller_account = g.seller_id
+                    JOIN orders o ON g.goods_id = o.goods_id
+                    WHERE s.seller_account = %s'''
+
+            cursor.execute(query, (sellerId,))
+            query_result = cursor.fetchall()
+
+            result = [
+                {
+                    "seller_name": row[0],
+                    "seller_phone": row[1],
+                    "image": base64.b64encode(row[2]).decode('utf-8') if row[2] else None,
+                    "star_rating": row[3],
+                    "comment": row[4],
+                    "order_time": row[5],
+                }
+                for row in query_result
+            ]
+            print(result[0]['seller_name'], result[0]['seller_phone'])
+            cursor.close()
+            psql_conn.close()
+
+        except Exception as e:
+            print("Database error:", e)
+            return jsonify({'error': 'Database error'}), 500
+
+        return jsonify(result)
+
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({'error': 'An error occurred'}), 500
+
+# get product logisitc info by productId
+
+
+@app.route('/api/getLogisticInfo/<memberId>', methods=['GET'])
+@cross_origin()
+def get_logistic_info(memberId):
+    try:
+        # connect to database
+        try:
+            psql_conn = psycopg2.connect(
+                f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+            cursor = psql_conn.cursor()
+
+            query = '''SELECT 
+                        g.goods_name, 
+                        grp.group_name 
+                    FROM 
+                        goods g
+                    JOIN 
+                        orders o ON g.goods_id = o.goods_id
+                    JOIN 
+                        groups grp ON g.group_id = grp.group_id
+                    WHERE 
+                        o.buyer_id = %s AND g.notification_status = '已通知';'''
+
+            cursor.execute(query, (memberId,))
+            query_result = cursor.fetchall()
+
+            result = [
+                {
+                    "goods_name": row[0],
+                    "group_name": row[1]
+                }
+                for row in query_result
+            ]
+            cursor.close()
+            psql_conn.close()
+
+        except Exception as e:
+            print("Database error:", e)
+            return jsonify({'error': 'Database error'}), 500
+
+        return jsonify(result)
+
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({'error': 'An error occurred'}), 500
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
