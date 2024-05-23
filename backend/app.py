@@ -7,6 +7,7 @@ import random
 import string
 import base64  # for img
 import datetime
+import uuid
 
 # Connect to PostgreSQL and fetch data
 with open('db_password.txt', 'r') as file:
@@ -433,7 +434,7 @@ def seller_search_groups():
 # function used in myOrder and orderState
 
 
-def fetch_orders(keyword):
+def fetch_orders(keyword, memberID):
 
     if keyword is None:
         return []  # 如果為空，直接返回空列表或其他適當的值
@@ -443,14 +444,25 @@ def fetch_orders(keyword):
 
     cur = conn.cursor()
     # 執行 SQL 查詢
-    cur.execute(
-        """
-        SELECT *
-        FROM groups
-        WHERE group_name ILIKE %s;
-        """,
-        ('%' + keyword + '%',)
-    )
+    # cur.execute(
+    #     """
+    #     SELECT *
+    #     FROM groups
+    #     WHERE group_name ILIKE %s;
+    #     """,
+    #     ('%' + keyword + '%',)
+    # )
+
+    query = """
+    SELECT sp.seller_id, gp.group_id, gp.group_name, gp.group_location
+    FROM groups AS gp
+        JOIN seller_participation AS sp ON gp.group_id = sp.group_id
+    WHERE (group_name ILIKE %s OR group_location ILIKE %s) AND sp.seller_id = %s
+    """
+
+    keyword_pattern = '%' + keyword + '%'
+    cur.execute(query, (keyword_pattern, keyword_pattern, memberID))
+    
 
     # 取得查詢結果
     query_result = cur.fetchall()
@@ -463,22 +475,24 @@ def fetch_orders(keyword):
 # seller search group to see orders' current state
 
 
-@app.route('/api/myOrder', methods=['POST'])
-def search_groups_myOrder():
+@app.route('/api/myOrder/<memberId>', methods=['POST'])
+def search_groups_myOrder(memberId):
+    print(memberId)
     data = request.get_json()
     searchTerm = data.get('searchKeyword')  # the search input
 
     # 從資料庫中取得訂單資訊
-    query_result = fetch_orders(searchTerm)
+    query_result = fetch_orders(searchTerm, memberId)
 
     # 格式化查詢結果
     result = [
         {
             # 訂單id、訂購社群、image、數量、單價、總價
-            "group_id": row[0],
-            "group_name": row[1],
-            "group_location": row[2],
-            "group_picture": row[3]
+            "seller_id": row[0],
+            "group_id": row[1],
+            "group_name": row[2],
+            "group_location": row[3],
+            # "group_picture": row[3]
         }
         for row in query_result
     ]
@@ -486,24 +500,26 @@ def search_groups_myOrder():
     return jsonify(result)
 
 
-@app.route('/api/orderState', methods=['POST'])
+@app.route('/api/orderState/<memberId>', methods=['POST'])
 # @cross_origin()
-def search_groups_orderState():
+def search_groups_orderState(memberId):
     if request.method == 'POST':
+        print(memberId)
         # 從表單中獲取搜索關鍵字
         keyword = request.form.get('searchTerm')
 
         # 從資料庫中取得訂單資訊
-        query_result = fetch_orders(keyword)
+        query_result = fetch_orders(keyword, memberId)
 
         # 格式化查詢結果
         result = [
             {
                 # 應要有訂單id、訂購社群、image、數量、單價、總價
-                "group_id": row[0],
-                "group_name": row[1],
-                "group_location": row[2],
-                "group_picture": row[3]
+                "seller_id": row[0],
+                "group_id": row[1],
+                "group_name": row[2],
+                "group_location": row[3],
+                # "group_picture": row[3]
             }
             for row in query_result
         ]
@@ -512,25 +528,256 @@ def search_groups_orderState():
         # 返回一個示例響應
         return jsonify(result)
 
-# @app.route('/api/orderState', methods=['POST'])
-# def search_groups_orderState():
-#     data = request.get_json()
-#     searchTerm = data.get('searchKeyword')  # the search input
+# logistic status 處理中改為等待，notification status改為未通知，order status改為送貨中
+@app.route('/api/updateMyOrder/<memberId>', methods=['POST'])
+def my_order(memberId):
+    data = request.get_json()
+    
+    # connect to db
+    psql_conn = psycopg2.connect(
+        f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    cursor = psql_conn.cursor()
 
-#      # 從資料庫中取得訂單資訊
-#     query_result = fetch_orders(searchTerm)
+    # Update logistic status and notification status in goods table
+    update_goods_query = """
+        UPDATE goods
+        SET logistic_status = '等待', notification_status = '未通知'
+        WHERE member_id = %s;
+    """
+    cursor.execute(update_goods_query, (memberId,))
 
-#     # 格式化查詢結果
-#     result = [
-#         {
-#             # 應要有訂單id、訂購社群、image、數量、單價、總價
-#             "group_name": row[0]
-#         }
-#         for row in query_result
-#     ]
-#     print(result)
+    # Update order status in orders table
+    update_orders_query = """
+        UPDATE orders
+        SET order_status = '送貨中'
+        WHERE member_id = %s;
+    """
+    cursor.execute(update_orders_query, (memberId,))
 
-#     return jsonify(result)
+    # Commit the transaction
+    psql_conn.commit()
+
+    # Retrieve updated statuses
+    select_query = """
+        SELECT g.logistic_status, g.notification_status, o.order_status
+        FROM goods g
+        JOIN orders o ON g.member_id = o.member_id
+        WHERE g.member_id = %s;
+    """
+    cursor.execute(select_query, (memberId,))
+
+    query_result = cursor.fetchall()  # result from db
+    result = [
+        {
+            "logistic status": row[0],
+            "notification status": row[1],
+            "order status": row[2],
+        }
+        for row in query_result
+    ]
+    # Close the cursor and connection
+    cursor.close()
+    psql_conn.close()
+
+    return jsonify(result)
+
+# logistic status改為已送達，notification status 改為已通知，order status已到貨
+@app.route('/api/updateOrderState/<memberId>', methods=['POST'])
+def order_state(memberId):
+    data = request.get_json()
+    
+    # connect to db
+    psql_conn = psycopg2.connect(
+        f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    cursor = psql_conn.cursor()
+
+    # Update logistic status and notification status in goods table
+    update_goods_query = """
+        UPDATE goods
+        SET logistic_status = '已送達', notification_status = '已通知'
+        WHERE member_id = %s;
+    """
+    cursor.execute(update_goods_query, (memberId,))
+
+    # Update order status in orders table
+    update_orders_query = """
+        UPDATE orders
+        SET order_status = '已到貨'
+        WHERE member_id = %s;
+    """
+    cursor.execute(update_orders_query, (memberId,))
+
+    # Commit the transaction
+    psql_conn.commit()
+
+    # Retrieve updated statuses
+    select_query = """
+        SELECT g.logistic_status, g.notification_status, o.order_status
+        FROM goods g
+        JOIN orders o ON g.member_id = o.member_id
+        WHERE g.member_id = %s;
+    """
+    cursor.execute(select_query, (memberId,))
+
+    query_result = cursor.fetchall()  # result from db
+    result = [
+        {
+            "logistic status": row[0],
+            "notification status": row[1],
+            "order status": row[2],
+        }
+        for row in query_result
+    ]
+    # Close the cursor and connection
+    cursor.close()
+    psql_conn.close()
+
+    return jsonify(result)
+
+
+# 產生不重複的 ID
+def generate_unique_group_id(cur):
+    while True:
+        # Generate a random 10-digit number
+        group_id = ''.join([str(random.randint(0, 9)) for _ in range(10)])
+        
+        # Check if this ID already exists in the database
+        cur.execute("SELECT 1 FROM GROUPS WHERE GROUP_ID = %s", (group_id,))
+        if not cur.fetchone():
+            # If no record exists with this ID, it's unique
+            return group_id
+        
+@app.route('/api/buildGroup', methods=['POST'])
+def build_group():
+    try:
+        # 从前端发送的请求中获取 JSON 数据
+        group_info = request.get_json()
+        print("Received group info:", group_info)  # 添加这行以检查是否正确收到了 JSON 数据
+
+        # 连接到 PostgreSQL
+        psql_conn = psycopg2.connect(
+            "dbname='" + dbname + "' user='postgres' host='localhost' password='" + db_password + "'")
+        cur = psql_conn.cursor()
+        print("Database connected successfully!")
+
+        # Generate a unique 10-digit ID
+        group_id = generate_unique_group_id(cur)
+        print("Generated unique 10-digit ID:", group_id)
+
+        # 获取书籍信息中的各个字段
+        group_name = group_info.get('name')
+        group_cover = group_info.get('cover')
+        group_location = group_info.get('location')
+        group_member_limit = group_info.get('member_limit')
+        group_rules = group_info.get('rules')
+
+        # sql = "INSERT INTO REQUEST_GROUP (GROUP_NAME, GROUP_PICTURE, GROUP_LOCATION, GROUP_MEMBER_LIMIT , GROUP_RULES) VALUES (%s, %s, %s, %s, %s)"
+        # data = (group_name, group_cover, group_location, group_member_limit, group_rules)
+
+        # 加入自動生成的 GROUP_ID!!
+        sql = "INSERT INTO GROUPS (GROUP_ID, GROUP_NAME, GROUP_LOCATION, GROUP_PICTURE) VALUES (%s, %s, %s, %s)"
+        data = (group_id, group_name, group_location, group_cover)
+        cur.execute(sql, data)
+        print("SQL executed successfully!")
+        # 提交更改
+        psql_conn.commit()
+
+        # 返回成功的消息给前端
+        return jsonify({"message": "group added successfully!"}), 200
+    except Exception as e:
+        # 如果发生任何错误，回滚更改并返回错误消息给前端
+        psql_conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        # 关闭游标和数据库连接
+        cur.close()
+        psql_conn.close()
+
+# addproduct
+def generate_unique_product_id(cur):
+    while True:
+        # Generate a random 10-digit number
+        id = ''.join([str(random.randint(0, 9)) for _ in range(10)])
+        
+        # Check if this ID already exists in the database
+        cur.execute("SELECT 1 FROM GOODS WHERE GOODS_ID = %s", (id,))
+        if not cur.fetchone():
+            # If no record exists with this ID, it's unique
+            return id
+        
+@app.route('/api/addProduct/<memberId>', methods=['POST'])
+def add_product(memberId):
+    try:
+        print(memberId)
+        # 从前端发送的请求中获取 JSON 数据
+        info = request.get_json()
+        print("Received info:", info)  # 添加这行以检查是否正确收到了 JSON 数据
+
+        # 连接到 PostgreSQL
+        psql_conn = psycopg2.connect(
+            "dbname='" + dbname + "' user='postgres' host='localhost' password='" + db_password + "'")
+        cur = psql_conn.cursor()
+        print("Database connected successfully!")
+
+        # Generate a unique 10-digit ID
+        product_id = generate_unique_product_id(cur)
+        print("Generated unique 10-digit ID:", product_id)
+
+        # 获取书籍信息中的各个字段
+        name = info.get('name')
+        tag = info.get('tag')
+        # tag = "其他"
+        print(tag)
+        amount = info.get('amount')
+        price = info.get('price')
+        group_name = info.get('group_name')
+        detail = info.get('detail')
+        cover = info.get('cover')
+        
+        logistic_status = '處理中'
+        notification_status = '未通知'
+  
+        query = """
+            select group_id 
+            from groups
+            where group_name like %s
+            """
+        cur.execute(query, ('%' + group_name + '%',))
+        query_result = cur.fetchall()
+        if query_result:
+            group_id = query_result[0][0]
+        else:
+            group_id = None
+        # print("Group ID:", group_id)
+
+        # print("Insert Info:", product_id, detail, memberId, group_id, tag, name, group_name, price, amount, cover, logistic_status, notification_status)
+        # print(product_id, detail, memberId, group_id, tag, name, price, amount, cover, logistic_status, notification_status)
+
+        # 加入自動生成的 Product_ID!!
+        sql = "INSERT INTO GOODS (GOODS_ID, GOODS_DESCRIPTION, SELLER_ID, GROUP_ID, TAG, GOODS_NAME, UNITE_PRICE, MIN_QUANTITY, GOODS_PICTURE, logistic_status, notification_status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        data = (product_id, detail, memberId, group_id, tag, name, price, amount, cover, logistic_status, notification_status)
+        cur.execute(sql, data)
+        print("SQL executed successfully!")
+        # 提交更改
+        psql_conn.commit()
+
+        # 返回成功的消息给前端
+        return jsonify({"message": "Product added successfully!"}), 200
+    except Exception as e:
+        # 如果发生任何错误，回滚更改并返回错误消息给前端
+        psql_conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        # 关闭游标和数据库连接
+        cur.close()
+        psql_conn.close()
+
+
+
+
+
+
+
 
 @app.route('/api/confirmOrder', methods=['POST'])
 @cross_origin()

@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 function SearchBar({}) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchClicked, setIsSearchClicked] = useState(false);
   const [orders, setOrders] = useState([]);
+  const { memberId } = useParams();
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -11,7 +13,7 @@ function SearchBar({}) {
     const formData = new FormData();
     formData.append("searchTerm", searchTerm);
 
-    const response = await fetch('http://127.0.0.1:5000/api/orderState', {
+    const response = await fetch(`http://localhost:5000/api/orderState/${memberId}`, {
       method: 'POST',
       body: formData,
     });
@@ -79,6 +81,26 @@ function OrderItem({ item }) {
 }
 
 function MyOrder() {
+  const { memberId } = useParams();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/getJoinedGroups/${memberId}`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        // setCommunities(data);
+        // setDisplayedCommunities(data);  // Display all communities by default
+      } catch (error) {
+        console.error('Error fetching groups:', error);
+      }
+    };
+
+    fetchData();
+  }, [memberId]);
+
   const orderItems = [
     {
       community: "幸福社區",

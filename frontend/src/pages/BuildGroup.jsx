@@ -185,7 +185,7 @@ function BuildGroup() {
         {/* 在页面上显示用户输入的书籍信息 */}
         {submittedGroupInfo && (
           <div className="flex flex-col px-5 ml-5 mt-5 w-full">
-              <h2 className="self-start text-xl text-black">Submitted Group Information</h2>
+              <h2 className="self-start text-xl text-black">Submitted Group Information:</h2>
               <p>Name: {submittedGroupInfo.name}</p>
               {/* <p>Cover: {submittedGroupInfo.cover}</p> */}
               <p>Location: {submittedGroupInfo.location}</p>
