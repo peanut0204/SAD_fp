@@ -502,7 +502,7 @@ def seller_search_groups():
 # function used in myOrder and orderState
 
 
-def fetch_orders(keyword, memberID):
+def fetch_my_orders(keyword, memberID):
 
     if keyword is None:
         return []  # 如果為空，直接返回空列表或其他適當的值
@@ -521,11 +521,22 @@ def fetch_orders(keyword, memberID):
     #     ('%' + keyword + '%',)
     # )
 
+    # query = """
+    # SELECT sp.seller_id, gp.group_id, gp.group_name, gp.group_location, 
+    #     gd.goods_name, gd.tag, gd.unite_price, gd.min_quantity
+    # FROM groups AS gp
+    #     JOIN seller_participation AS sp ON gp.group_id = sp.group_id
+    #     JOIN goods AS gd ON gp.group_id = gd.group_id
+    # WHERE (group_name ILIKE %s OR group_location ILIKE %s) AND sp.seller_id = %s 
+    #     AND (gd.logistic_status = '處理中' OR '等待')
+    # """
     query = """
-    SELECT sp.seller_id, gp.group_id, gp.group_name, gp.group_location
+    SELECT sp.seller_id, gp.group_id, gp.group_name, gp.group_location, 
+        gd.goods_name, gd.tag, gd.unite_price, gd.min_quantity
     FROM groups AS gp
         JOIN seller_participation AS sp ON gp.group_id = sp.group_id
-    WHERE (group_name ILIKE %s OR group_location ILIKE %s) AND sp.seller_id = %s
+        JOIN goods AS gd ON gp.group_id = gd.group_id
+    WHERE (group_name ILIKE %s OR group_location ILIKE %s) AND sp.seller_id = %s 
     """
 
     keyword_pattern = '%' + keyword + '%'
@@ -550,7 +561,7 @@ def search_groups_myOrder(memberId):
     searchTerm = data.get('searchKeyword')  # the search input
 
     # 從資料庫中取得訂單資訊
-    query_result = fetch_orders(searchTerm, memberId)
+    query_result = fetch_my_orders(searchTerm, memberId)
 
     # 格式化查詢結果
     result = [
@@ -560,14 +571,64 @@ def search_groups_myOrder(memberId):
             "group_id": row[1],
             "group_name": row[2],
             "group_location": row[3],
-            # "group_picture": row[3]
+            "goods_name": row[4], 
+            "tag": row[5], 
+            "unite_price": row[6],
+            "min_quantity": row[7],
         }
         for row in query_result
     ]
 
     return jsonify(result)
 
+def fetch_order_state(keyword, memberID):
 
+    if keyword is None:
+        return []  # 如果為空，直接返回空列表或其他適當的值
+
+    conn = psycopg2.connect(
+        f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+
+    cur = conn.cursor()
+    # 執行 SQL 查詢
+    # cur.execute(
+    #     """
+    #     SELECT *
+    #     FROM groups
+    #     WHERE group_name ILIKE %s;
+    #     """,
+    #     ('%' + keyword + '%',)
+    # )
+
+    # query = """
+    # SELECT sp.seller_id, gp.group_id, gp.group_name, gp.group_location, 
+    #     gd.goods_name, gd.tag, gd.unite_price, gd.min_quantity
+    # FROM groups AS gp
+    #     JOIN seller_participation AS sp ON gp.group_id = sp.group_id
+    #     JOIN goods AS gd ON gp.group_id = gd.group_id
+    # WHERE (group_name ILIKE %s OR group_location ILIKE %s) AND sp.seller_id = %s 
+    #     AND gd.logistic_status = '已送達' AND gd.notification_status = '未通知'
+    # """
+    query = """
+    SELECT sp.seller_id, gp.group_id, gp.group_name, gp.group_location, 
+        gd.goods_name, gd.tag, gd.unite_price, gd.min_quantity
+    FROM groups AS gp
+        JOIN seller_participation AS sp ON gp.group_id = sp.group_id
+        JOIN goods AS gd ON gp.group_id = gd.group_id
+    WHERE (group_name ILIKE %s OR group_location ILIKE %s) AND sp.seller_id = %s 
+    """
+
+    keyword_pattern = '%' + keyword + '%'
+    cur.execute(query, (keyword_pattern, keyword_pattern, memberID))
+    
+
+    # 取得查詢結果
+    query_result = cur.fetchall()
+
+    # 關閉資料庫連接
+    cur.close()
+    conn.close()
+    return query_result
 @app.route('/api/orderState/<memberId>', methods=['POST'])
 # @cross_origin()
 def search_groups_orderState(memberId):
@@ -577,7 +638,7 @@ def search_groups_orderState(memberId):
         keyword = request.form.get('searchTerm')
 
         # 從資料庫中取得訂單資訊
-        query_result = fetch_orders(keyword, memberId)
+        query_result = fetch_order_state(keyword, memberId)
 
         # 格式化查詢結果
         result = [
@@ -587,7 +648,10 @@ def search_groups_orderState(memberId):
                 "group_id": row[1],
                 "group_name": row[2],
                 "group_location": row[3],
-                # "group_picture": row[3]
+                "goods_name": row[4], 
+                "tag": row[5], 
+                "unite_price": row[6],
+                "min_quantity": row[7],
             }
             for row in query_result
         ]

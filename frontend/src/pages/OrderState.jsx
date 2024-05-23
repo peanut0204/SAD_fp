@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 // API: 參考 https://chat.openai.com/share/ff565665-fb69-42f9-9bf2-1772c49a638d
 
 function SearchBar({}) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchClicked, setIsSearchClicked] = useState(false);
   const [orders, setOrders] = useState([]);
+  const {memberId} = useParams();
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -12,7 +14,7 @@ function SearchBar({}) {
     const formData = new FormData();
     formData.append("searchTerm", searchTerm);
 
-    const response = await fetch('http://127.0.0.1:5000/api/orderState', {
+    const response = await fetch(`http://127.0.0.1:5000/api/orderState/${memberId}`, {
       method: 'POST',
       body: formData,
     });
@@ -56,23 +58,27 @@ function SearchBar({}) {
     <div className="">
       <form onSubmit={handleSearch}>
         <input 
-          className="justify-center items-start self-center px-4 py-3 mt-4 max-w-full text-base font-medium leading-6 whitespace-nowrap rounded-lg border border-solid shadow-sm bg-neutral-200 border-neutral-200 text-zinc-500 w-[200px]" 
+          className="justify-center items-start self-center px-4 py-3 mt-4 max-w-full text-base font-medium leading-6 whitespace-nowrap rounded-lg border border-solid shadow-sm bg-neutral-200 border-neutral-200 text-zinc-500 w-[230px]" 
           // onChange={handleChange} 
           onChange={e => setSearchTerm(e.target.value)}
           type="text" 
           // name="SearchGroup"
           value={searchTerm}
-          placeholder="輸入關鍵字來搜尋社群..."
+          placeholder="以社群名稱或地點搜尋..."
         />
         <button type="submit" className="px-4 py-3 text-base font-medium leading-6 whitespace-nowrap bg-white rounded-lg border-2 border-solid border-neutral-200 text-zinc-500">
           搜尋🔍
         </button>
       </form>
-      {isSearchClicked && <p> 已找到 {orders.length} 筆訂購： </p>}
+      {isSearchClicked && <p> 已找到 {orders.length} 筆我的已到貨訂單： </p>}
       {orders.map((order, index) => (
 						<div key={index} className="p-6 m-2 border rounded" style={{width: '100%'}} >
 							<p>群組名稱：{order.group_name}</p>
 							<p>團購地址：{order.group_location}</p>
+              <p>團購品項：{order.goods_name}</p>
+              <p>品項類別：{order.tag}</p>
+              <p>單價：{order.unite_price}</p>
+              <p>最小數量：{order.min_quantity}</p>
 						</div>
 			))}
 
@@ -87,9 +93,9 @@ function OrderItem({ item }) {
       <div className="flex gap-5 justify-between leading-6 text-black">
         <div className="flex flex-col gap-2 whitespace-nowrap">
           <div className="gap-0">
-            訂購社群：{item.community}
+            群組名稱：{item.community}
             <br />
-            訂單編號：{item.orderNumber}
+            商品編號：{item.orderNumber}
             <br />
           </div>
           <img src={item.image} alt={item.imageAlt} className="gap-0 mt-2 w-full aspect-[0.91]" />
@@ -112,13 +118,13 @@ function OrderItem({ item }) {
 function MyOrder() {
   const orderItems = [
     {
-      community: "幸福社區",
-      orderNumber: "20020204",
+      community: "健身俱樂部",
+      orderNumber: "8205029504",
       image: "https://cdn.builder.io/api/v1/image/assets/TEMP/51be6b88a8b318311a21326cff4c59ffd9f49322796d0384ecddec765edf56c1?apiKey=96372eeb149147dbb6ed64bcf7ffb73b&",
       imageAlt: "Order item image",
       quantity: 8,
-      price: 87,
-      total: 900,
+      price: 80,
+      total: 640,
     },
   ];
 
