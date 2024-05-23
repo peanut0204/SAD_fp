@@ -13,15 +13,83 @@ import uuid
 with open('db_password.txt', 'r') as file:
     db_password = file.read().strip()
 
-dbname = 'GO'
+dbname = 'sad_fp'
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 # CORS(app, resources={r"/api/*": {"origins": "*"}})
 
+
+# Login
+@app.route('/api/login', methods=['POST'])
+def login():
+
+    # Get parameters from the JSON request data
+    data = request.get_json()
+
+    # Extract account and password from the request data
+    account = data.get('account')
+    password = data.get('password')
+
+    # Validate if account and password are present in the request
+    if not account or not password:
+        return jsonify({'success': False, 'message': 'Account and password are required'}), 400
+
+    # Fetch data from the database using a prepared statement to prevent SQL injection
+    try:
+        psql_conn = psycopg2.connect(
+            "dbname='"+dbname+"' user='postgres' host='localhost' password=" + db_password)
+        
+        query = "SELECT b.buyer_password FROM buyer AS b WHERE b.buyer_account = '" + account + "'"
+        df = pd.read_sql_query(query, psql_conn)
+        psql_conn.close()
+        # with psql_conn.cursor() as cursor:
+        # 	cursor.execute("SELECT member_id, status FROM member AS m JOIN member_role AS r ON m.member_id=r.member_id WHERE m.account=%s AND m.password=%s", (account, password))
+        # 	result = cursor.fetchone()
+
+        if not df.empty:
+            if password == df['buyer_password'].values:
+                return jsonify({'success': True, 'memberId': account})
+                
+            else:
+                return jsonify({'success': False, 'message': 'Login failed. Invalid password'})
+        else:
+            return jsonify({'success': False, 'message': 'Login failed. Invalid account'})
+
+    except Exception as e:
+        print("Error during login:", str(e))
+        return jsonify({'success': False, 'message': 'An error occurred during login'}), 500
+
+# Register
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    account = data.get('account')
+    password = data.get('password')
+
+    if not account or not password:
+        return jsonify({'success': False, 'message': 'Account and password are required'}), 400
+    
+    psql_conn = psycopg2.connect(
+        f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+    cursor = psql_conn.cursor()
+
+    
+    insert_query = """INSERT INTO MEMBER (member_id, account, password, name, nickname, gender, birthday, status) 
+    VALUES (%s, %s, %s, %s, %s, %s, %s, 'Normal')"""
+
+    insert_query_2 = """INSERT INTO member_role (member_id, role) VALUES (%s, 'User')"""
+
+    cursor.execute(insert_query, (mid, account, password,
+                   name, nickname, gender, birthday))
+    cursor.execute(insert_query_2, (mid,))
+    psql_conn.commit()
+    # or return jsonify({'success': False, 'message': 'Account already registered}), 400
+    # or return jsonify({'success': False, 'message': 'Invalid input fromat'}), 400
+    return jsonify({'success': True, 'message': 'Register success', 'memberId': mid}), 200
+
+
 # 1. search by good
-
-
 @app.route('/api/searchGood', methods=['POST'])
 @cross_origin()
 def search_good():
@@ -942,7 +1010,7 @@ def get_logistic_info(memberId):
                     JOIN 
                         groups grp ON g.group_id = grp.group_id
                     WHERE 
-                        o.buyer_id = %s AND g.notification_status = '已通知';'''
+                        o.buyer_id = %s AND g.logistic_status = '已送達';'''
 
             cursor.execute(query, (memberId,))
             query_result = cursor.fetchall()
@@ -967,7 +1035,70 @@ def get_logistic_info(memberId):
         print("Error:", e)
         return jsonify({'error': 'An error occurred'}), 500
 
+# build group
+# @app.route('/api/buildGroup/<member_id>', methods=['POST'])
+# def build_group(member_id):
 
+# 產生不重複的 ID
+
+
+def generate_unique_id(cur):
+    while True:
+        # Generate a random 10-digit number
+        group_id = ''.join([str(random.randint(0, 9)) for _ in range(10)])
+
+        # Check if this ID already exists in the database
+        cur.execute("SELECT 1 FROM GROUPS WHERE GROUP_ID = %s", (group_id,))
+        if not cur.fetchone():
+            # If no record exists with this ID, it's unique
+            return group_id
+
+
+@app.route('/api/buildGroup', methods=['POST'])
+def build_group():
+    try:
+        # 从前端发送的请求中获取 JSON 数据
+        group_info = request.get_json()
+        print("Received group info:", group_info)  # 添加这行以检查是否正确收到了 JSON 数据
+
+        # 连接到 PostgreSQL
+        psql_conn = psycopg2.connect(
+            "dbname='" + dbname + "' user='postgres' host='localhost' password='" + db_password + "'")
+        cur = psql_conn.cursor()
+        print("Database connected successfully!")
+
+        # Generate a unique 10-digit ID
+        group_id = generate_unique_id(cur)
+        print("Generated unique 10-digit ID:", group_id)
+
+        # 获取书籍信息中的各个字段
+        group_name = group_info.get('name')
+        group_cover = group_info.get('cover')
+        group_location = group_info.get('location')
+        group_member_limit = group_info.get('member_limit')
+        group_rules = group_info.get('rules')
+
+        # sql = "INSERT INTO REQUEST_GROUP (GROUP_NAME, GROUP_PICTURE, GROUP_LOCATION, GROUP_MEMBER_LIMIT , GROUP_RULES) VALUES (%s, %s, %s, %s, %s)"
+        # data = (group_name, group_cover, group_location, group_member_limit, group_rules)
+
+        # 加入自動生成的 GROUP_ID!!
+        sql = "INSERT INTO GROUPS (GROUP_ID, GROUP_NAME, GROUP_LOCATION, GROUP_PICTURE) VALUES (%s, %s, %s, %s)"
+        data = (group_id, group_name, group_location, group_cover)
+        cur.execute(sql, data)
+        print("SQL executed successfully!")
+        # 提交更改
+        psql_conn.commit()
+
+        # 返回成功的消息给前端
+        return jsonify({"message": "group added successfully!"}), 200
+    except Exception as e:
+        # 如果发生任何错误，回滚更改并返回错误消息给前端
+        psql_conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        # 关闭游标和数据库连接
+        cur.close()
+        psql_conn.close()
 
 if __name__ == '__main__':
     app.run(debug=True)
