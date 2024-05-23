@@ -695,7 +695,7 @@ def get_logistic_info(memberId):
                     JOIN 
                         groups grp ON g.group_id = grp.group_id
                     WHERE 
-                        o.buyer_id = %s AND g.notification_status = '已通知';'''
+                        o.buyer_id = %s AND g.logistic_status = '已送達';'''
 
             cursor.execute(query, (memberId,))
             query_result = cursor.fetchall()
