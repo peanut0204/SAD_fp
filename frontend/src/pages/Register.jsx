@@ -42,13 +42,21 @@ function Register() {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
+		// Create a FormData instance
+		const formData = new FormData();
+
+		// Append the form fields
+		formData.append('account', account);
+		formData.append('password', password);
+		formData.append('name', name);
+		formData.append('phone', phone);
+		formData.append('photo', photo);
+
 		// Make API call to the backend (replace with your actual API endpoint)
 		const response = await fetch('http://127.0.0.1:5000/api/register', {
 			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({ account, password, name, phone}),
+			body: formData,
+			// body: JSON.stringify({ account, password, name, phone}),
 		});
 
 		// Handle the response
@@ -120,9 +128,10 @@ function Register() {
 									className="hidden"
 									accept="image/*"
 									name="photo"
-									value={photo}
+									// value={photo}
 									onChange={(e) => {
 									const file = e.target.files[0];
+									setPhoto(file);
 									const reader = new FileReader();
 									
 									reader.onload = (event) => {
