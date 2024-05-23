@@ -20,6 +20,8 @@ CORS(app)  # Enable CORS for all routes
 # CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 
+
+
 # Login
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -63,30 +65,38 @@ def login():
 # Register
 @app.route('/api/register', methods=['POST'])
 def register():
-    data = request.get_json()
-    account = data.get('account')
-    password = data.get('password')
+    account = request.form.get('account')
+    password = request.form.get('password')
+    name = request.form.get('name')
+    phone = request.form.get('phone')
+    photo = request.files.get('photo')
 
-    if not account or not password:
-        return jsonify({'success': False, 'message': 'Account and password are required'}), 400
+    # Read the photo file in binary mode
+    photo_data = photo.read()
+
+
+    if not account or not password or not name or not phone or not photo:
+        return jsonify({'success': False, 'message': 'Information incomplete'}), 400
     
     psql_conn = psycopg2.connect(
         f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
     cursor = psql_conn.cursor()
 
     
-    insert_query = """INSERT INTO MEMBER (member_id, account, password, name, nickname, gender, birthday, status) 
-    VALUES (%s, %s, %s, %s, %s, %s, %s, 'Normal')"""
+    insert_query = """INSERT INTO buyer (buyer_account, buyer_password, buyer_name, buyer_phonenumber, buyer_picture) 
+    VALUES (%s, %s, %s, %s, %s)"""
 
-    insert_query_2 = """INSERT INTO member_role (member_id, role) VALUES (%s, 'User')"""
+    insert_query_2 = """INSERT INTO seller (seller_account, seller_password, seller_name, seller_phonenumber, seller_picture)
+    VALUES (%s, %s, %s, %s, %s)"""
 
-    cursor.execute(insert_query, (mid, account, password,
-                   name, nickname, gender, birthday))
-    cursor.execute(insert_query_2, (mid,))
+    cursor.execute(insert_query, (account, password,
+                   name, phone, psycopg2.Binary(photo_data)))
+    cursor.execute(insert_query_2, (account, password,
+                   name, phone, psycopg2.Binary(photo_data)))
     psql_conn.commit()
     # or return jsonify({'success': False, 'message': 'Account already registered}), 400
     # or return jsonify({'success': False, 'message': 'Invalid input fromat'}), 400
-    return jsonify({'success': True, 'message': 'Register success', 'memberId': mid}), 200
+    return jsonify({'success': True, 'message': 'Register success', 'memberId': account}), 200
 
 
 # 1. search by good
