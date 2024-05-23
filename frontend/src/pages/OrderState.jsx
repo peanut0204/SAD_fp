@@ -103,7 +103,7 @@ function OrderItem({ item }) {
       </div>
       <div className="shrink-0 gap-0 mt-3.5 h-px bg-black border border-black border-solid" />
       <button className="justify-center self-center px-2 py-1.5 text-center text-white whitespace-nowrap bg-black rounded-lg border border-solid shadow-sm border-neutral-200 leading-[150%]">
-        通知賣家📢
+        通知買家📢
       </button>
     </div>
   );
