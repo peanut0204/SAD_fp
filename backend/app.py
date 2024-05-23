@@ -763,7 +763,7 @@ def get_logistic_info(memberId):
                     JOIN 
                         groups grp ON g.group_id = grp.group_id
                     WHERE 
-                        o.buyer_id = %s AND g.notification_status = '已通知';'''
+                        o.buyer_id = %s AND g.logistic_status = '已送達';'''
 
             cursor.execute(query, (memberId,))
             query_result = cursor.fetchall()
@@ -788,7 +788,70 @@ def get_logistic_info(memberId):
         print("Error:", e)
         return jsonify({'error': 'An error occurred'}), 500
 
+# build group
+# @app.route('/api/buildGroup/<member_id>', methods=['POST'])
+# def build_group(member_id):
 
+# 產生不重複的 ID
+
+
+def generate_unique_id(cur):
+    while True:
+        # Generate a random 10-digit number
+        group_id = ''.join([str(random.randint(0, 9)) for _ in range(10)])
+
+        # Check if this ID already exists in the database
+        cur.execute("SELECT 1 FROM GROUPS WHERE GROUP_ID = %s", (group_id,))
+        if not cur.fetchone():
+            # If no record exists with this ID, it's unique
+            return group_id
+
+
+@app.route('/api/buildGroup', methods=['POST'])
+def build_group():
+    try:
+        # 从前端发送的请求中获取 JSON 数据
+        group_info = request.get_json()
+        print("Received group info:", group_info)  # 添加这行以检查是否正确收到了 JSON 数据
+
+        # 连接到 PostgreSQL
+        psql_conn = psycopg2.connect(
+            "dbname='" + dbname + "' user='postgres' host='localhost' password='" + db_password + "'")
+        cur = psql_conn.cursor()
+        print("Database connected successfully!")
+
+        # Generate a unique 10-digit ID
+        group_id = generate_unique_id(cur)
+        print("Generated unique 10-digit ID:", group_id)
+
+        # 获取书籍信息中的各个字段
+        group_name = group_info.get('name')
+        group_cover = group_info.get('cover')
+        group_location = group_info.get('location')
+        group_member_limit = group_info.get('member_limit')
+        group_rules = group_info.get('rules')
+
+        # sql = "INSERT INTO REQUEST_GROUP (GROUP_NAME, GROUP_PICTURE, GROUP_LOCATION, GROUP_MEMBER_LIMIT , GROUP_RULES) VALUES (%s, %s, %s, %s, %s)"
+        # data = (group_name, group_cover, group_location, group_member_limit, group_rules)
+
+        # 加入自動生成的 GROUP_ID!!
+        sql = "INSERT INTO GROUPS (GROUP_ID, GROUP_NAME, GROUP_LOCATION, GROUP_PICTURE) VALUES (%s, %s, %s, %s)"
+        data = (group_id, group_name, group_location, group_cover)
+        cur.execute(sql, data)
+        print("SQL executed successfully!")
+        # 提交更改
+        psql_conn.commit()
+
+        # 返回成功的消息给前端
+        return jsonify({"message": "group added successfully!"}), 200
+    except Exception as e:
+        # 如果发生任何错误，回滚更改并返回错误消息给前端
+        psql_conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        # 关闭游标和数据库连接
+        cur.close()
+        psql_conn.close()
 
 if __name__ == '__main__':
     app.run(debug=True)
