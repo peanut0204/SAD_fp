@@ -679,112 +679,118 @@ def search_groups_orderState(memberId):
 # logistic status 處理中改為等待，notification status改為未通知，order status改為送貨中
 
 
-@app.route('/api/updateMyOrder/<memberId>', methods=['POST'])
-def my_order(memberId):
+@app.route('/api/updateMyOrder/<goodsId>', methods=['POST'])
+def my_order(goodsId):
     data = request.get_json()
+    try:
+        # connect to db
+        psql_conn = psycopg2.connect(
+            f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+        cursor = psql_conn.cursor()
 
-    # connect to db
-    psql_conn = psycopg2.connect(
-        f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
-    cursor = psql_conn.cursor()
+        # Update logistic status and notification status in goods table
+        update_goods_query = """
+            UPDATE goods
+            SET logistic_status = '等待', notification_status = '未通知'
+            WHERE goods_id = %s
+        """
+        cursor.execute(update_goods_query, (goodsId,))
 
-    # Update logistic status and notification status in goods table
-    update_goods_query = """
-        UPDATE goods
-        SET logistic_status = '等待', notification_status = '未通知'
-        WHERE member_id = %s;
-    """
-    cursor.execute(update_goods_query, (memberId,))
+        # Update order status in orders table
+        update_orders_query = """
+            UPDATE orders
+            SET order_status = '送貨中'
+            WHERE goods_id = %s
+        """
+        cursor.execute(update_orders_query, (goodsId,))
 
-    # Update order status in orders table
-    update_orders_query = """
-        UPDATE orders
-        SET order_status = '送貨中'
-        WHERE member_id = %s;
-    """
-    cursor.execute(update_orders_query, (memberId,))
+        # Commit the transaction
+        psql_conn.commit()
 
-    # Commit the transaction
-    psql_conn.commit()
+        # Retrieve updated statuses
+        # select_query = """
+        #     SELECT g.logistic_status, g.notification_status, o.order_status
+        #     FROM goods g
+        #     JOIN orders o ON g.member_id = o.member_id
+        #     WHERE g.member_id = %s;
+        # """
+        # cursor.execute(select_query, (memberId,))
 
-    # Retrieve updated statuses
-    select_query = """
-        SELECT g.logistic_status, g.notification_status, o.order_status
-        FROM goods g
-        JOIN orders o ON g.member_id = o.member_id
-        WHERE g.member_id = %s;
-    """
-    cursor.execute(select_query, (memberId,))
-
-    query_result = cursor.fetchall()  # result from db
-    result = [
-        {
-            "logistic status": row[0],
-            "notification status": row[1],
-            "order status": row[2],
-        }
-        for row in query_result
-    ]
-    # Close the cursor and connection
-    cursor.close()
-    psql_conn.close()
-
-    return jsonify(result)
+        # query_result = cursor.fetchall()  # result from db
+        # result = [
+        #     {
+        #         "logistic status": row[0],
+        #         "notification status": row[1],
+        #         "order status": row[2],
+        #     }
+        #     for row in query_result
+        # ]
+        # Close the cursor and connection
+        return jsonify({"message": "updateMyOrder successfully!"}), 200
+    except Exception as e:
+        psql_conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        psql_conn.close()
 
 # logistic status改為已送達，notification status 改為已通知，order status已到貨
 
 
-@app.route('/api/updateOrderState/<memberId>', methods=['POST'])
-def order_state(memberId):
+@app.route('/api/updateOrderState/<goodsId>', methods=['POST'])
+def order_state(goodsId):
     data = request.get_json()
+    try:
+        # connect to db
+        psql_conn = psycopg2.connect(
+            f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+        cursor = psql_conn.cursor()
 
-    # connect to db
-    psql_conn = psycopg2.connect(
-        f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
-    cursor = psql_conn.cursor()
+        # Update logistic status and notification status in goods table
+        update_goods_query = """
+            UPDATE goods
+            SET logistic_status = '已送達', notification_status = '未通知'
+            WHERE goods_id = %s;
+        """
+        cursor.execute(update_goods_query, (goodsId,))
 
-    # Update logistic status and notification status in goods table
-    update_goods_query = """
-        UPDATE goods
-        SET logistic_status = '已送達', notification_status = '已通知'
-        WHERE member_id = %s;
-    """
-    cursor.execute(update_goods_query, (memberId,))
+        # Update order status in orders table
+        update_orders_query = """
+            UPDATE orders
+            SET order_status = '已到貨'
+            WHERE goods_id = %s;
+        """
+        cursor.execute(update_orders_query, (goodsId,))
 
-    # Update order status in orders table
-    update_orders_query = """
-        UPDATE orders
-        SET order_status = '已到貨'
-        WHERE member_id = %s;
-    """
-    cursor.execute(update_orders_query, (memberId,))
+        # Commit the transaction
+        psql_conn.commit()
 
-    # Commit the transaction
-    psql_conn.commit()
+        # Retrieve updated statuses
+        # select_query = """
+        #     SELECT g.logistic_status, g.notification_status, o.order_status
+        #     FROM goods g
+        #     JOIN orders o ON g.member_id = o.member_id
+        #     WHERE g.member_id = %s;
+        # """
+        # cursor.execute(select_query, (memberId,))
 
-    # Retrieve updated statuses
-    select_query = """
-        SELECT g.logistic_status, g.notification_status, o.order_status
-        FROM goods g
-        JOIN orders o ON g.member_id = o.member_id
-        WHERE g.member_id = %s;
-    """
-    cursor.execute(select_query, (memberId,))
-
-    query_result = cursor.fetchall()  # result from db
-    result = [
-        {
-            "logistic status": row[0],
-            "notification status": row[1],
-            "order status": row[2],
-        }
-        for row in query_result
-    ]
-    # Close the cursor and connection
-    cursor.close()
-    psql_conn.close()
-
-    return jsonify(result)
+        # query_result = cursor.fetchall()  # result from db
+        # result = [
+        #     {
+        #         "logistic status": row[0],
+        #         "notification status": row[1],
+        #         "order status": row[2],
+        #     }
+        #     for row in query_result
+        # ]
+        # Close the cursor and connection
+        return jsonify({"message": "updateOrderState successfully!"}), 200
+    except Exception as e:
+        psql_conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        psql_conn.close()
 
 
 # 產生不重複的 ID
