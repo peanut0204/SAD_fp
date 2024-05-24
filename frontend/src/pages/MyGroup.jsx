@@ -56,7 +56,7 @@ function MyGroup() {
 
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative', background: 'white' }}>
-      <div style={{ width: '100%', height: 186, paddingTop: 15, paddingLeft: 14, paddingRight: 14, position: 'fixed', top: 0, left: 0, background: '#F1C010', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ width: '100%', height: 186, paddingTop: 15, paddingLeft: 14, paddingRight: 14, position: 'fixed', top: 0, left: 0, background: '#F1C010', display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2 }}>
         <div style={{ position: 'absolute', left: 14, top: 130, width: 24, height: 25 }} onClick={goBack}>
           <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="15 18 9 12 15 6"></polyline>
@@ -97,9 +97,8 @@ function MyGroup() {
             </Button>
           </div>
         </div>
-
       </div>
-      <div style={{ marginTop: 200, padding: '0 14px' }}>
+      <div style={{ marginTop: 200, padding: '0 14px', zIndex: 1, position: 'relative' }}>
         <h2 style={{ marginBottom: 20, fontSize: 20 }}><b>我加入的社群</b></h2>
         {displayedCommunities.map(community => (
           <div className='box' key={community.group_id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginBottom: '20px' }}>
