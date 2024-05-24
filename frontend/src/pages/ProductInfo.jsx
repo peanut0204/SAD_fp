@@ -103,7 +103,7 @@ function ProductInfo() {
       </div>
       <div className="price" style={{ left: 70, top: 481, position: 'absolute', textAlign: 'center', color: 'black', fontSize: 20, fontFamily: 'Inter', fontWeight: 'bold', wordWrap: 'break-word' }}>價格 : {productInfo.price}</div>
       <div className="description" style={{ left: 125, top: 521, position: 'absolute', textAlign: 'center', color: 'black', fontSize: 20, fontFamily: 'Inter', fontWeight: 'bold', wordWrap: 'break-word' }}>▶️商品敘述</div>
-      <div className="description" style={{ left: 48, top: 561, position: 'absolute', textAlign: 'center', color: 'black', fontSize: 16, fontFamily: 'Inter', fontWeight: 'bold', wordWrap: 'break-word', maxWidth: '300px' }}>{productInfo.description}</div>
+      <div className="description" style={{ left: 70, top: 561, position: 'absolute', textAlign: 'center', color: 'black', fontSize: 16, fontFamily: 'Inter', fontWeight: 'bold', wordWrap: 'break-word', maxWidth: '300px' }}>{productInfo.description}</div>
 
       <div style={{ width: '55%', position: 'absolute', left: 80, top: 700, display: 'flex', justifyContent: 'space-between', padding: '0 20px' }}>
         <Button variant="contained" color="primary" onClick={goToConfirmOrder}>訂購</Button>

@@ -195,7 +195,7 @@ function SearchFood() {
 							{searchGoodResults.map((good, index) => (
 								<div key={index} className="p-6 m-2 border rounded" style={{ width: '80%' }} >
 									{good.image && <img src={`data:image/jpeg;base64,${good.image}`} alt={good.id} />}
-									<Link to={`/ProductInfo/${memberId}/${good.id}`}>
+									<Link to={`/ProductInfo/${memberId}/${good.id}/${good.sellerId}`}>
 
 										<h2 className="text-xl font-bold mb-1">{good.title}</h2>
 

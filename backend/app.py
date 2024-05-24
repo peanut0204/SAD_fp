@@ -13,17 +13,16 @@ import uuid
 with open('db_password.txt', 'r') as file:
     db_password = file.read().strip()
 
-dbname = 'sad_fp'
+dbname = 'GO'
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 # CORS(app, resources={r"/api/*": {"origins": "*"}})
-
-
-
-
 # Login
+
+
 @app.route('/api/login', methods=['POST'])
+@cross_origin()
 def login():
 
     # Get parameters from the JSON request data
@@ -41,7 +40,7 @@ def login():
     try:
         psql_conn = psycopg2.connect(
             "dbname='"+dbname+"' user='postgres' host='localhost' password=" + db_password)
-        
+
         query = "SELECT b.buyer_password FROM buyer AS b WHERE b.buyer_account = '" + account + "'"
         df = pd.read_sql_query(query, psql_conn)
         psql_conn.close()
@@ -52,7 +51,6 @@ def login():
         if not df.empty:
             if password == df['buyer_password'].values:
                 return jsonify({'success': True, 'memberId': account})
-                
             else:
                 return jsonify({'success': False, 'message': 'Login failed. Invalid password'})
         else:
@@ -63,6 +61,8 @@ def login():
         return jsonify({'success': False, 'message': 'An error occurred during login'}), 500
 
 # Register
+
+
 @app.route('/api/register', methods=['POST'])
 def register():
     account = request.form.get('account')
@@ -74,15 +74,13 @@ def register():
     # Read the photo file in binary mode
     photo_data = photo.read()
 
-
     if not account or not password or not name or not phone or not photo:
         return jsonify({'success': False, 'message': 'Information incomplete'}), 400
-    
+
     psql_conn = psycopg2.connect(
         f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
     cursor = psql_conn.cursor()
 
-    
     insert_query = """INSERT INTO buyer (buyer_account, buyer_password, buyer_name, buyer_phonenumber, buyer_picture) 
     VALUES (%s, %s, %s, %s, %s)"""
 
@@ -115,9 +113,9 @@ def search_good():
     query = """
             select gd.goods_id, gd.goods_picture, gd.goods_name, gp.group_name, gp.group_location from goods as gd
             join groups as gp on gp.group_id = gd.group_id
-            where gd.goods_name like %s
+            where gd.goods_name like %s or gd.tag like %s
             """
-    cursor.execute(query, ('%' + searchTerm + '%',))
+    cursor.execute(query, ('%' + searchTerm + '%', '%' + searchTerm + '%'))
 
     query_result = cursor.fetchall()  # result from db
     # print("searchGood")
@@ -138,7 +136,6 @@ def search_good():
     result = [
         {
             "id": row[0],
-            # "image": base64.b64encode(row[1]).decode('utf-8') if row[1] else None,
             "image": base64.b64encode(row[1]).decode('utf-8') if row[1] else None,
             "title": row[2],
             "group": row[3],
@@ -445,12 +442,11 @@ def seller_search_good():
     cursor = psql_conn.cursor()
 
     query = """
-            select gd.goods_id, gd.goods_picture, gd.goods_name, gp.group_name, gp.group_location from goods as gd
-            join go_activity as ga on ga.goods_id = gd.goods_id
-            join groups as gp on gp.group_id = ga.group_id
-            where gd.goods_name like %s
+            select gd.goods_id, gd.goods_picture, gd.goods_name, gp.group_name, gp.group_location, gp.seller_id from goods as gd
+            join groups as gp on gp.group_id = gd.group_id
+            where gd.goods_name like %s or gd.tag like %s
             """
-    cursor.execute(query, ('%' + searchTerm + '%',))
+    cursor.execute(query, ('%' + searchTerm + '%', '%' + searchTerm + '%'))
 
     query_result = cursor.fetchall()  # result from db
 
@@ -458,10 +454,10 @@ def seller_search_good():
         {
             "id": row[0],
             "image": base64.b64encode(row[1]).decode('utf-8') if row[1] else None,
-            # "image": base64.b64encode(row[1]).decode('utf-8') if row[1] else None,
             "title": row[2],
             "group": row[3],
-            "groupAddress": row[4]
+            "groupAddress": row[4],
+            "sellerId": row[5]
         }
         for row in query_result
     ]
@@ -532,12 +528,12 @@ def fetch_my_orders(keyword, memberID):
     # )
 
     # query = """
-    # SELECT sp.seller_id, gp.group_id, gp.group_name, gp.group_location, 
+    # SELECT sp.seller_id, gp.group_id, gp.group_name, gp.group_location,
     #     gd.goods_name, gd.tag, gd.unite_price, gd.min_quantity
     # FROM groups AS gp
     #     JOIN seller_participation AS sp ON gp.group_id = sp.group_id
     #     JOIN goods AS gd ON gp.group_id = gd.group_id
-    # WHERE (group_name ILIKE %s OR group_location ILIKE %s) AND sp.seller_id = %s 
+    # WHERE (group_name ILIKE %s OR group_location ILIKE %s) AND sp.seller_id = %s
     #     AND (gd.logistic_status = '處理中' OR '等待')
     # """
     query = """
@@ -551,8 +547,8 @@ def fetch_my_orders(keyword, memberID):
     """
 
     keyword_pattern = '%' + keyword + '%'
-    cur.execute(query, (keyword_pattern, keyword_pattern, keyword_pattern, memberID))
-    
+    cur.execute(query, (keyword_pattern, keyword_pattern,
+                keyword_pattern, memberID))
 
     # 取得查詢結果
     query_result = cur.fetchall()
@@ -582,8 +578,8 @@ def search_groups_myOrder(memberId):
             "group_id": row[1],
             "group_name": row[2],
             "group_location": row[3],
-            "goods_name": row[4], 
-            "tag": row[5], 
+            "goods_name": row[4],
+            "tag": row[5],
             "unite_price": row[6],
             "min_quantity": row[7],
             "logistic_status": row[8],
@@ -594,6 +590,7 @@ def search_groups_myOrder(memberId):
     ]
 
     return jsonify(result)
+
 
 def fetch_order_state(keyword, memberID):
 
@@ -615,12 +612,12 @@ def fetch_order_state(keyword, memberID):
     # )
 
     # query = """
-    # SELECT sp.seller_id, gp.group_id, gp.group_name, gp.group_location, 
+    # SELECT sp.seller_id, gp.group_id, gp.group_name, gp.group_location,
     #     gd.goods_name, gd.tag, gd.unite_price, gd.min_quantity
     # FROM groups AS gp
     #     JOIN seller_participation AS sp ON gp.group_id = sp.group_id
     #     JOIN goods AS gd ON gp.group_id = gd.group_id
-    # WHERE (group_name ILIKE %s OR group_location ILIKE %s) AND sp.seller_id = %s 
+    # WHERE (group_name ILIKE %s OR group_location ILIKE %s) AND sp.seller_id = %s
     #     AND gd.logistic_status = '已送達' AND gd.notification_status = '未通知'
     # """
     query = """
@@ -633,8 +630,8 @@ def fetch_order_state(keyword, memberID):
     """
 
     keyword_pattern = '%' + keyword + '%'
-    cur.execute(query, (keyword_pattern, keyword_pattern, keyword_pattern, memberID))
-    
+    cur.execute(query, (keyword_pattern, keyword_pattern,
+                keyword_pattern, memberID))
 
     # 取得查詢結果
     query_result = cur.fetchall()
@@ -643,6 +640,8 @@ def fetch_order_state(keyword, memberID):
     cur.close()
     conn.close()
     return query_result
+
+
 @app.route('/api/orderState/<memberId>', methods=['POST'])
 # @cross_origin()
 def search_groups_orderState(memberId):
@@ -662,8 +661,8 @@ def search_groups_orderState(memberId):
                 "group_id": row[1],
                 "group_name": row[2],
                 "group_location": row[3],
-                "goods_name": row[4], 
-                "tag": row[5], 
+                "goods_name": row[4],
+                "tag": row[5],
                 "unite_price": row[6],
                 "min_quantity": row[7],
                 "logistic_status": row[8],
@@ -678,10 +677,12 @@ def search_groups_orderState(memberId):
         return jsonify(result)
 
 # logistic status 處理中改為等待，notification status改為未通知，order status改為送貨中
+
+
 @app.route('/api/updateMyOrder/<memberId>', methods=['POST'])
 def my_order(memberId):
     data = request.get_json()
-    
+
     # connect to db
     psql_conn = psycopg2.connect(
         f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
@@ -731,10 +732,12 @@ def my_order(memberId):
     return jsonify(result)
 
 # logistic status改為已送達，notification status 改為已通知，order status已到貨
+
+
 @app.route('/api/updateOrderState/<memberId>', methods=['POST'])
 def order_state(memberId):
     data = request.get_json()
-    
+
     # connect to db
     psql_conn = psycopg2.connect(
         f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
@@ -789,13 +792,14 @@ def generate_unique_group_id(cur):
     while True:
         # Generate a random 10-digit number
         group_id = ''.join([str(random.randint(0, 9)) for _ in range(10)])
-        
+
         # Check if this ID already exists in the database
         cur.execute("SELECT 1 FROM GROUPS WHERE GROUP_ID = %s", (group_id,))
         if not cur.fetchone():
             # If no record exists with this ID, it's unique
             return group_id
-        
+
+
 @app.route('/api/buildGroup', methods=['POST'])
 def build_group():
     try:
@@ -843,17 +847,21 @@ def build_group():
         psql_conn.close()
 
 # addproduct
+
+
+# addproduct
 def generate_unique_product_id(cur):
     while True:
         # Generate a random 10-digit number
         id = ''.join([str(random.randint(0, 9)) for _ in range(10)])
-        
+
         # Check if this ID already exists in the database
         cur.execute("SELECT 1 FROM GOODS WHERE GOODS_ID = %s", (id,))
         if not cur.fetchone():
             # If no record exists with this ID, it's unique
             return id
-        
+
+
 @app.route('/api/addProduct/<memberId>', methods=['POST'])
 def add_product(memberId):
     try:
@@ -882,10 +890,10 @@ def add_product(memberId):
         group_name = info.get('group_name')
         detail = info.get('detail')
         cover = info.get('cover')
-        
+
         logistic_status = '處理中'
         notification_status = '未通知'
-  
+
         query = """
             select group_id 
             from groups
@@ -904,7 +912,8 @@ def add_product(memberId):
 
         # 加入自動生成的 Product_ID!!
         sql = "INSERT INTO GOODS (GOODS_ID, GOODS_DESCRIPTION, SELLER_ID, GROUP_ID, TAG, GOODS_NAME, UNITE_PRICE, MIN_QUANTITY, GOODS_PICTURE, logistic_status, notification_status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        data = (product_id, detail, memberId, group_id, tag, name, price, amount, cover, logistic_status, notification_status)
+        data = (product_id, detail, memberId, group_id, tag, name,
+                price, amount, cover, logistic_status, notification_status)
         cur.execute(sql, data)
         print("SQL executed successfully!")
         # 提交更改
@@ -920,12 +929,6 @@ def add_product(memberId):
         # 关闭游标和数据库连接
         cur.close()
         psql_conn.close()
-
-
-
-
-
-
 
 
 @app.route('/api/confirmOrder', methods=['POST'])
@@ -1115,24 +1118,6 @@ def get_logistic_info(memberId):
     except Exception as e:
         print("Error:", e)
         return jsonify({'error': 'An error occurred'}), 500
-
-# build group
-# @app.route('/api/buildGroup/<member_id>', methods=['POST'])
-# def build_group(member_id):
-
-# 產生不重複的 ID
-
-
-def generate_unique_id(cur):
-    while True:
-        # Generate a random 10-digit number
-        group_id = ''.join([str(random.randint(0, 9)) for _ in range(10)])
-
-        # Check if this ID already exists in the database
-        cur.execute("SELECT 1 FROM GROUPS WHERE GROUP_ID = %s", (group_id,))
-        if not cur.fetchone():
-            # If no record exists with this ID, it's unique
-            return group_id
 
 
 if __name__ == '__main__':
