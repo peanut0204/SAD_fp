@@ -1,5 +1,5 @@
-import * as React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 function Avatar({ src, alt }) {
     return (
@@ -7,7 +7,7 @@ function Avatar({ src, alt }) {
             loading="lazy"
             src={src}
             alt={alt}
-            className="shrink-0 gap-0 w-9 aspect-square"
+            className="shrink-0 gap-0 w-12 aspect-square"
         />
     );
 }
@@ -30,7 +30,7 @@ function MessagePreview({ name, message, time, isRead }) {
                             {" "}
                             <div className="gap-0 font-bold text-slate-700">{name}</div>{" "}
                             <div
-                                className={`gap-0 ${isRead ? "mt-2.5" : "mt-1.5"} ${isRead ? "text-slate-700" : "text-gray-400"}`}
+                                className={`gap-0 ${isRead ? "mt-2.5" : "mt-1.5"} ${isRead ? "text-slate-700 font-bold" : "text-gray-400"}`}
                             >
                                 {" "}
                                 {message}{" "}
@@ -60,7 +60,7 @@ const messages = [
         id: 2,
         name: "Lynn Tanner",
         message: "The message goes here.....",
-        time: "04:00 PM",
+        time: "03:50 PM",
         isRead: false,
         avatarSrc:
             "https://cdn.builder.io/api/v1/image/assets/TEMP/e321998b8c5e5dd76ddde844f0ab874a4275dc7f972e52a2e148081c2404870b?apiKey=96372eeb149147dbb6ed64bcf7ffb73b&",
@@ -69,7 +69,7 @@ const messages = [
         id: 3,
         name: "Col. Roderick Decker",
         message: "The message goes here.....",
-        time: "04:00 PM",
+        time: "03:40 PM",
         isRead: true,
         avatarSrc:
             "https://cdn.builder.io/api/v1/image/assets/TEMP/1eb2ef5c4147d55f2e80308864a8860c0e75883fd9387519516c5ea374ef346f?apiKey=96372eeb149147dbb6ed64bcf7ffb73b&",
@@ -78,7 +78,7 @@ const messages = [
         id: 4,
         name: "Dr. Bonnie Barstow",
         message: "The message goes here.....",
-        time: "04:00 PM",
+        time: "03:22 PM",
         isRead: false,
         avatarSrc:
             "https://cdn.builder.io/api/v1/image/assets/TEMP/864a01dedd316bc00840f5104e98646ca047a6be610c2d15cf08bbfbf8939208?apiKey=96372eeb149147dbb6ed64bcf7ffb73b&",
@@ -87,7 +87,7 @@ const messages = [
         id: 5,
         name: "Murdock",
         message: "The message goes here.....",
-        time: "04:00 PM",
+        time: "03:16 PM",
         isRead: false,
         avatarSrc:
             "https://cdn.builder.io/api/v1/image/assets/TEMP/f329958ed077536655f800af907fa1a6fbf55e18dc03994a30a69a6ed5f0d27d?apiKey=96372eeb149147dbb6ed64bcf7ffb73b&",
@@ -96,7 +96,7 @@ const messages = [
         id: 6,
         name: "Capt. Trunk",
         message: "The message goes here.....",
-        time: "04:00 PM",
+        time: "03:08 PM",
         isRead: false,
         avatarSrc:
             "https://cdn.builder.io/api/v1/image/assets/TEMP/6950f68c28551ce683272d58eb1952a204f90d5e2b860d56c548b1c8885bf5f7?apiKey=96372eeb149147dbb6ed64bcf7ffb73b&",
@@ -105,7 +105,7 @@ const messages = [
         id: 7,
         name: "Tony Danza",
         message: "The message goes here.....",
-        time: "04:00 PM",
+        time: "03:05 PM",
         isRead: false,
         avatarSrc:
             "https://cdn.builder.io/api/v1/image/assets/TEMP/bd65c4ac269f2b6c22537e90795774e442c7d94a425e8332d18f7bdf528096cf?apiKey=96372eeb149147dbb6ed64bcf7ffb73b&",
@@ -114,7 +114,7 @@ const messages = [
         id: 8,
         name: "Jonathan Higgins",
         message: "The message goes here.....",
-        time: "04:00 PM",
+        time: "02:50 PM",
         isRead: true,
         avatarSrc:
             "https://cdn.builder.io/api/v1/image/assets/TEMP/92a790a982e16d4d7da2ca85e325c0b41e4ed579b74519a902309522f4d5e036?apiKey=96372eeb149147dbb6ed64bcf7ffb73b&",
@@ -123,7 +123,7 @@ const messages = [
         id: 9,
         name: "Devon Miles",
         message: "The message goes here.....",
-        time: "04:00 PM",
+        time: "02:40 PM",
         isRead: true,
         avatarSrc:
             "https://cdn.builder.io/api/v1/image/assets/TEMP/a2c31f5d0631132245c446a8cb469c671ff90b63ac21f7b42e83f284b42ac17d?apiKey=96372eeb149147dbb6ed64bcf7ffb73b&",
@@ -132,7 +132,7 @@ const messages = [
         id: 10,
         name: "Devon Miles",
         message: "The message goes here.....",
-        time: "04:00 PM",
+        time: "02:36 PM",
         isRead: false,
         avatarSrc:
             "https://cdn.builder.io/api/v1/image/assets/TEMP/a3a3d5feb02fdd64305ed081372e223db4501b663741d7670da2ec9f6e3778f4?apiKey=96372eeb149147dbb6ed64bcf7ffb73b&",
@@ -141,19 +141,21 @@ const messages = [
         id: 11,
         name: "Michael Knight",
         message: "The message goes here.....",
-        time: "04:00 PM",
+        time: "02:20 PM",
         isRead: true,
         avatarSrc:
             "https://cdn.builder.io/api/v1/image/assets/TEMP/ceff63e104f6c397603ebb550c4390542de8d38e2d11b09180f5a2919a18f559?apiKey=96372eeb149147dbb6ed64bcf7ffb73b&",
     },
 ];
 function SellerChats() {
+    const { memberId } = useParams();
     return (
+    <div style={{ backgroundColor: 'saddlebrown' }}>
         <div className="flex flex-col gap-0 pb-20 mx-auto w-full bg-white max-w-[480px]">
             {" "}
             <header className="flex gap-5 items-start px-4 pt-20 pb-4 w-full text-3xl bg-yellow-400">
                 <button>
-                    <a href="../SellerOffice/1">
+                    <a href={`../SellerOffice/${memberId}`}>
                         <img loading="lazy" src="https://cdn.builder.io/api/v1/image/assets/TEMP/0985f90a1c268de1453e96392357b86d4e1d1e025d9162ea01e8c89b45c6a4ff?apiKey=96372eeb149147dbb6ed64bcf7ffb73b&" alt="Search icon" className="shrink-0 gap-0 aspect-square w-[35px]" />
                     </a>
                 </button>
@@ -172,6 +174,7 @@ function SellerChats() {
                 ))}{" "}
             </main>{" "}
         </div>
+    </div>
     );
 }
 
