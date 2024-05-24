@@ -115,9 +115,9 @@ def search_good():
     query = """
             select gd.goods_id, gd.goods_picture, gd.goods_name, gp.group_name, gp.group_location from goods as gd
             join groups as gp on gp.group_id = gd.group_id
-            where gd.goods_name like %s
+            where gd.goods_name like %s or gd.tag like %s
             """
-    cursor.execute(query, ('%' + searchTerm + '%',))
+    cursor.execute(query, ('%' + searchTerm + '%', '%' + searchTerm + '%'))
 
     query_result = cursor.fetchall()  # result from db
     # print("searchGood")
@@ -446,11 +446,10 @@ def seller_search_good():
 
     query = """
             select gd.goods_id, gd.goods_picture, gd.goods_name, gp.group_name, gp.group_location from goods as gd
-            join go_activity as ga on ga.goods_id = gd.goods_id
-            join groups as gp on gp.group_id = ga.group_id
-            where gd.goods_name like %s
+            join groups as gp on gp.group_id = gd.group_id
+            where gd.goods_name like %s or gd.tag like %s
             """
-    cursor.execute(query, ('%' + searchTerm + '%',))
+    cursor.execute(query, ('%' + searchTerm + '%', '%' + searchTerm + '%'))
 
     query_result = cursor.fetchall()  # result from db
 
