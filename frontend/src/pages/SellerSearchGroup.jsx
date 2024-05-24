@@ -19,10 +19,11 @@ const theme = createTheme({
 });
 
 function SearchBar() {
+  const { memberId } = useParams();
   return (
     <div className="flex gap-5 items-start px-8 pt-20 pb-3.5 w-full text-3xl text-black whitespace-nowrap bg-yellow-400">
       <button>
-        <a href="../SellerOffice/1">
+        <a href={`../SellerOffice/${memberId}`}>
           <img loading="lazy" src="https://cdn.builder.io/api/v1/image/assets/TEMP/0985f90a1c268de1453e96392357b86d4e1d1e025d9162ea01e8c89b45c6a4ff?apiKey=96372eeb149147dbb6ed64bcf7ffb73b&" alt="Search icon" className="shrink-0 gap-0 aspect-square w-[35px]" />
         </a>
       </button>

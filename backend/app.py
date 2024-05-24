@@ -542,15 +542,16 @@ def fetch_my_orders(keyword, memberID):
     # """
     query = """
     SELECT sp.seller_id, gp.group_id, gp.group_name, gp.group_location, 
-        gd.goods_name, gd.tag, gd.unite_price, gd.min_quantity
+        gd.goods_name, gd.tag, gd.unite_price, gd.min_quantity, 
+        gd.logistic_status, gd.notification_status
     FROM groups AS gp
         JOIN seller_participation AS sp ON gp.group_id = sp.group_id
         JOIN goods AS gd ON gp.group_id = gd.group_id
-    WHERE (group_name ILIKE %s OR group_location ILIKE %s) AND sp.seller_id = %s 
+    WHERE (group_name ILIKE %s OR group_location ILIKE %s OR gd.goods_name ILIKE %s) AND sp.seller_id = %s 
     """
 
     keyword_pattern = '%' + keyword + '%'
-    cur.execute(query, (keyword_pattern, keyword_pattern, memberID))
+    cur.execute(query, (keyword_pattern, keyword_pattern, keyword_pattern, memberID))
     
 
     # 取得查詢結果
@@ -585,6 +586,9 @@ def search_groups_myOrder(memberId):
             "tag": row[5], 
             "unite_price": row[6],
             "min_quantity": row[7],
+            "logistic_status": row[8],
+            "notification_status": row[9],
+            # "order_status": row[10]
         }
         for row in query_result
     ]
@@ -621,15 +625,15 @@ def fetch_order_state(keyword, memberID):
     # """
     query = """
     SELECT sp.seller_id, gp.group_id, gp.group_name, gp.group_location, 
-        gd.goods_name, gd.tag, gd.unite_price, gd.min_quantity
+        gd.goods_name, gd.tag, gd.unite_price, gd.min_quantity, gd.logistic_status, gd.notification_status
     FROM groups AS gp
         JOIN seller_participation AS sp ON gp.group_id = sp.group_id
         JOIN goods AS gd ON gp.group_id = gd.group_id
-    WHERE (group_name ILIKE %s OR group_location ILIKE %s) AND sp.seller_id = %s 
+    WHERE (group_name ILIKE %s OR group_location ILIKE %s OR gd.goods_name ILIKE %s) AND sp.seller_id = %s 
     """
 
     keyword_pattern = '%' + keyword + '%'
-    cur.execute(query, (keyword_pattern, keyword_pattern, memberID))
+    cur.execute(query, (keyword_pattern, keyword_pattern, keyword_pattern, memberID))
     
 
     # 取得查詢結果
@@ -662,6 +666,9 @@ def search_groups_orderState(memberId):
                 "tag": row[5], 
                 "unite_price": row[6],
                 "min_quantity": row[7],
+                "logistic_status": row[8],
+                "notification_status": row[9],
+                # "order_status": row[10]
             }
             for row in query_result
         ]

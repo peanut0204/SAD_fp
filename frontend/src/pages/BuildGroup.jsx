@@ -89,7 +89,7 @@ function BuildGroup() {
       <div className="flex flex-col pb-16 mx-auto w-full bg-white max-w-[480px]">
         <div className="flex gap-5 items-start px-3.5 pt-20 pb-5 w-full text-3xl text-black whitespace-nowrap bg-yellow-400">
           <button>
-            <Link to="/SearchFood/1"> 
+            <Link to={`/SearchFood/${memberId}`}> 
               <img
                 loading="lazy"
                 src="https://cdn.builder.io/api/v1/image/assets/TEMP/24edf058b578a35dd93bf699fe724d82806d3188532ec241304c9738697f137a?apiKey=96372eeb149147dbb6ed64bcf7ffb73b&"
