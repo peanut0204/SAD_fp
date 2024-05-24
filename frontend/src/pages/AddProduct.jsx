@@ -188,11 +188,11 @@ const AddProduct = () => {
           {submittedProductInfo && (
             <div className="flex flex-col px-5 ml-5 mt-5 w-full">
                 <h2 className="self-start text-xl text-black">Submitted Product Information:</h2>
-                <p>Name: {submittedProductInfo.name}</p>
+                <p>Product Name: {submittedProductInfo.name}</p>
                 <p>Tag: {submittedProductInfo.tag}</p>
                 <p>Amount: {submittedProductInfo.amount}</p>
                 <p>Unit Price: {submittedProductInfo.price}</p>
-                <p>Location: {submittedProductInfo.location}</p>
+                <p>Group Name: {submittedProductInfo.group_name}</p>
                 <p>Description: {submittedProductInfo.detail}</p>
                 {/* <p>Photo: {submittedProductInfo.cover}</p> */}
             </div>
