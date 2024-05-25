@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import Button from '@mui/material/Button'; //a prettier button
 // API: 參考 https://chat.openai.com/share/ff565665-fb69-42f9-9bf2-1772c49a638d
 
 function SearchBar({}) {
@@ -7,6 +8,7 @@ function SearchBar({}) {
   const [isSearchClicked, setIsSearchClicked] = useState(false);
   const [orders, setOrders] = useState([]);
   const {memberId} = useParams();
+  const [message, setMessage] = useState('');
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -25,6 +27,34 @@ function SearchBar({}) {
     setOrders(data);
   };
 
+  const handleLogistic = async (goodsId) => {
+		const response = await fetch(`http://localhost:5000/api/updateOrderState`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+      body: JSON.stringify({ goodsId }),
+		});
+
+    const data = await response.json();
+		console.log(data);
+		if (data.success) {
+			console.log('Notify successful');
+			setMessage(data.message);
+
+		}
+		else {
+			console.log('Notify failed');
+			setMessage(data.message);
+
+		}
+		
+		// // Join successful, clear message after a delay
+		// setTimeout(() => {
+		// 	console.log('setMessage called')
+		// 	setMessage('成功通知賣家！');
+		// }, 3000); // Clear message after 2 seconds
+	};
   
 
   // const handleSearch =  async (e) => {
@@ -76,11 +106,15 @@ function SearchBar({}) {
 							<p>群組名稱：{order.group_name}</p>
 							<p>團購地址：{order.group_location}</p>
               <p>團購品項：{order.goods_name}</p>
-              <p>品項類別：{order.tag}</p>
+              {/* <p>品項類別：{order.tag}</p>
               <p>商品單價：{order.unite_price}</p>
-              <p>最小數量：{order.min_quantity}</p>
+              <p>最小數量：{order.min_quantity}</p> */}
               <p>物流狀態：{order.logistic_status}</p>
               <p>通知狀態：{order.notification_status}</p>
+              <br />
+              <Button variant="contained" color="primary" style={{ height: '40px', fontSize: '15px' }} onClick={() => handleLogistic(order.goods_id)} >通知買家📢</Button>
+              <p>ID: {order.goods_id}</p>
+              {message && <p color='primary'>{message}</p>}
 						</div>
 			))}
 
@@ -110,9 +144,10 @@ function OrderItem({ item }) {
         </div>
       </div>
       <div className="shrink-0 gap-0 mt-3.5 h-px bg-black border border-black border-solid" />
-      <button className="justify-center self-center px-2 py-1.5 text-center text-white whitespace-nowrap bg-black rounded-lg border border-solid shadow-sm border-neutral-200 leading-[150%]">
+      {/* <button className="justify-center self-center px-2 py-1.5 text-center text-white whitespace-nowrap bg-black rounded-lg border border-solid shadow-sm border-neutral-200 leading-[150%]">
         通知買家📢
-      </button>
+      </button> */}
+      <Button variant="contained" color="primary" style={{ height: '40px', fontSize: '15px' }}  >通知買家📢</Button>
     </div>
   );
 }
@@ -144,9 +179,6 @@ function MyOrder() {
             <h1 className="flex-auto gap-0 my-auto">我的訂單</h1>
           </div>
         </header>
-        <div className="flex">
-          <SearchBar />
-        </div>
         
         <nav className="flex gap-5 justify-between px-5 text-xl text-center whitespace-nowrap">
           <a href={`/MyOrder/${memberId}`} className="gap-0 text-zinc-500">
@@ -156,10 +188,15 @@ function MyOrder() {
             已到貨
           </a>
         </nav>
+
+        <div className="flex">
+          <SearchBar />
+        </div>
+
         <main>
           {/* <p>Searched Items:</p> */}
           {/* {isSearchClicked && <p>orders found</p>} */}
-          <p>All Items:</p>
+          <p className='px-5'>所有已到貨品項:</p>
 
           {orderItems.map((item, index) => (
             <OrderItem key={index} item={item} />

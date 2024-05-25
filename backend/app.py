@@ -539,11 +539,13 @@ def fetch_my_orders(keyword, memberID):
     query = """
     SELECT sp.seller_id, gp.group_id, gp.group_name, gp.group_location, 
         gd.goods_name, gd.tag, gd.unite_price, gd.min_quantity, 
-        gd.logistic_status, gd.notification_status
+        gd.logistic_status, gd.notification_status, gd.goods_id
     FROM groups AS gp
         JOIN seller_participation AS sp ON gp.group_id = sp.group_id
         JOIN goods AS gd ON gp.group_id = gd.group_id
-    WHERE (group_name ILIKE %s OR group_location ILIKE %s OR gd.goods_name ILIKE %s) AND sp.seller_id = %s 
+    WHERE (group_name ILIKE %s OR group_location ILIKE %s OR gd.goods_name ILIKE %s) 
+        AND sp.seller_id = %s 
+        AND (gd.logistic_status = '處理中' OR gd.logistic_status = '等待')
     """
 
     keyword_pattern = '%' + keyword + '%'
@@ -552,6 +554,7 @@ def fetch_my_orders(keyword, memberID):
 
     # 取得查詢結果
     query_result = cur.fetchall()
+    print("query result: ", query_result)
 
     # 關閉資料庫連接
     cur.close()
@@ -563,33 +566,36 @@ def fetch_my_orders(keyword, memberID):
 
 @app.route('/api/myOrder/<memberId>', methods=['POST'])
 def search_groups_myOrder(memberId):
-    print(memberId)
-    data = request.get_json()
-    searchTerm = data.get('searchKeyword')  # the search input
+    if request.method == 'POST':
+        print(memberId)
+        # 從表單中獲取搜索關鍵字
+        keyword = request.form.get('searchTerm')
 
-    # 從資料庫中取得訂單資訊
-    query_result = fetch_my_orders(searchTerm, memberId)
+        # 從資料庫中取得訂單資訊
+        query_result = fetch_my_orders(keyword, memberId)
 
-    # 格式化查詢結果
-    result = [
-        {
-            # 訂單id、訂購社群、image、數量、單價、總價
-            "seller_id": row[0],
-            "group_id": row[1],
-            "group_name": row[2],
-            "group_location": row[3],
-            "goods_name": row[4],
-            "tag": row[5],
-            "unite_price": row[6],
-            "min_quantity": row[7],
-            "logistic_status": row[8],
-            "notification_status": row[9],
-            # "order_status": row[10]
-        }
-        for row in query_result
-    ]
+        # 格式化查詢結果
+        result = [
+            {
+                # 訂單id、訂購社群、image、數量、單價、總價
+                "seller_id": row[0],
+                "group_id": row[1],
+                "group_name": row[2],
+                "group_location": row[3],
+                "goods_name": row[4],
+                "tag": row[5],
+                "unite_price": row[6],
+                "min_quantity": row[7],
+                "logistic_status": row[8],
+                "notification_status": row[9],
+                "goods_id": row[10]
+                # "order_status": row[10]
+            }
+            for row in query_result
+        ]
+        print(result)
 
-    return jsonify(result)
+        return jsonify(result)
 
 
 def fetch_order_state(keyword, memberID):
@@ -622,11 +628,15 @@ def fetch_order_state(keyword, memberID):
     # """
     query = """
     SELECT sp.seller_id, gp.group_id, gp.group_name, gp.group_location, 
-        gd.goods_name, gd.tag, gd.unite_price, gd.min_quantity, gd.logistic_status, gd.notification_status
+        gd.goods_name, gd.tag, gd.unite_price, gd.min_quantity, 
+        gd.logistic_status, gd.notification_status, gd.goods_id
     FROM groups AS gp
         JOIN seller_participation AS sp ON gp.group_id = sp.group_id
         JOIN goods AS gd ON gp.group_id = gd.group_id
-    WHERE (group_name ILIKE %s OR group_location ILIKE %s OR gd.goods_name ILIKE %s) AND sp.seller_id = %s 
+    WHERE (group_name ILIKE %s OR group_location ILIKE %s OR gd.goods_name ILIKE %s) 
+        AND sp.seller_id = %s 
+        AND gd.logistic_status = '已送達' 
+        AND (gd.notification_status = '未通知' OR gd.notification_status = '已通知')
     """
 
     keyword_pattern = '%' + keyword + '%'
@@ -667,6 +677,7 @@ def search_groups_orderState(memberId):
                 "min_quantity": row[7],
                 "logistic_status": row[8],
                 "notification_status": row[9],
+                "goods_id": row[10]
                 # "order_status": row[10]
             }
             for row in query_result
@@ -679,112 +690,84 @@ def search_groups_orderState(memberId):
 # logistic status 處理中改為等待，notification status改為未通知，order status改為送貨中
 
 
-@app.route('/api/updateMyOrder/<memberId>', methods=['POST'])
-def my_order(memberId):
+@app.route('/api/updateMyOrder', methods=['POST'])
+def my_order():
     data = request.get_json()
+    goodsId = data.get('goodsId')
+    # print(goodsId)
+    try:
+        # connect to db
+        psql_conn = psycopg2.connect(
+            f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+        cursor = psql_conn.cursor()
 
-    # connect to db
-    psql_conn = psycopg2.connect(
-        f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
-    cursor = psql_conn.cursor()
+        # Update logistic status and notification status in goods table
+        update_goods_query = """
+            UPDATE goods
+            SET logistic_status = '等待', notification_status = '未通知'
+            WHERE goods_id = %s
+        """
+        cursor.execute(update_goods_query, (goodsId,))
 
-    # Update logistic status and notification status in goods table
-    update_goods_query = """
-        UPDATE goods
-        SET logistic_status = '等待', notification_status = '未通知'
-        WHERE member_id = %s;
-    """
-    cursor.execute(update_goods_query, (memberId,))
+        # Update order status in orders table
+        update_orders_query = """
+            UPDATE orders
+            SET order_status = '送貨中'
+            WHERE goods_id = %s
+        """
+        cursor.execute(update_orders_query, (goodsId,))
 
-    # Update order status in orders table
-    update_orders_query = """
-        UPDATE orders
-        SET order_status = '送貨中'
-        WHERE member_id = %s;
-    """
-    cursor.execute(update_orders_query, (memberId,))
+        # Commit the transaction
+        psql_conn.commit()
 
-    # Commit the transaction
-    psql_conn.commit()
-
-    # Retrieve updated statuses
-    select_query = """
-        SELECT g.logistic_status, g.notification_status, o.order_status
-        FROM goods g
-        JOIN orders o ON g.member_id = o.member_id
-        WHERE g.member_id = %s;
-    """
-    cursor.execute(select_query, (memberId,))
-
-    query_result = cursor.fetchall()  # result from db
-    result = [
-        {
-            "logistic status": row[0],
-            "notification status": row[1],
-            "order status": row[2],
-        }
-        for row in query_result
-    ]
-    # Close the cursor and connection
-    cursor.close()
-    psql_conn.close()
-
-    return jsonify(result)
+        return jsonify({'success': True, 'message': '成功安排出貨！'}), 200
+    
+    except Exception as e:
+        psql_conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        psql_conn.close()
 
 # logistic status改為已送達，notification status 改為已通知，order status已到貨
 
 
-@app.route('/api/updateOrderState/<memberId>', methods=['POST'])
-def order_state(memberId):
+@app.route('/api/updateOrderState', methods=['POST'])
+def order_state():
     data = request.get_json()
+    goodsId = data.get('goodsId')
+    try:
+        # connect to db
+        psql_conn = psycopg2.connect(
+            f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
+        cursor = psql_conn.cursor()
 
-    # connect to db
-    psql_conn = psycopg2.connect(
-        f"dbname='{dbname}' user='postgres' host='localhost' password='{db_password}'")
-    cursor = psql_conn.cursor()
+        # Update logistic status and notification status in goods table
+        update_goods_query = """
+            UPDATE goods
+            SET logistic_status = '已送達', notification_status = '已通知'
+            WHERE goods_id = %s;
+        """
+        cursor.execute(update_goods_query, (goodsId,))
 
-    # Update logistic status and notification status in goods table
-    update_goods_query = """
-        UPDATE goods
-        SET logistic_status = '已送達', notification_status = '已通知'
-        WHERE member_id = %s;
-    """
-    cursor.execute(update_goods_query, (memberId,))
+        # Update order status in orders table
+        update_orders_query = """
+            UPDATE orders
+            SET order_status = '已到貨'
+            WHERE goods_id = %s;
+        """
+        cursor.execute(update_orders_query, (goodsId,))
 
-    # Update order status in orders table
-    update_orders_query = """
-        UPDATE orders
-        SET order_status = '已到貨'
-        WHERE member_id = %s;
-    """
-    cursor.execute(update_orders_query, (memberId,))
+        # Commit the transaction
+        psql_conn.commit()
 
-    # Commit the transaction
-    psql_conn.commit()
-
-    # Retrieve updated statuses
-    select_query = """
-        SELECT g.logistic_status, g.notification_status, o.order_status
-        FROM goods g
-        JOIN orders o ON g.member_id = o.member_id
-        WHERE g.member_id = %s;
-    """
-    cursor.execute(select_query, (memberId,))
-
-    query_result = cursor.fetchall()  # result from db
-    result = [
-        {
-            "logistic status": row[0],
-            "notification status": row[1],
-            "order status": row[2],
-        }
-        for row in query_result
-    ]
-    # Close the cursor and connection
-    cursor.close()
-    psql_conn.close()
-
-    return jsonify(result)
+        return jsonify({'success': True, 'message': '成功通知買家！'}), 200
+    except Exception as e:
+        psql_conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        psql_conn.close()
 
 
 # 產生不重複的 ID
