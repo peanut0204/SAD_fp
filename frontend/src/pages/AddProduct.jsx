@@ -13,14 +13,6 @@ const RoundedBorderDiv = ({ children }) => (
 );
 
 const AddProduct = () => {
-  // const groupBuyItems = [
-  //   { label: "團購商品名稱", placeholder: "輸入團購名稱..." },
-  //   { label: "團購商品Tag", placeholder: "輸入商品類別..." },
-  //   { label: "團購商品最低數量", placeholder: "輸入商品數量..." },
-  //   { label: "團購商品單價", placeholder: "輸入商品單價..." },
-  //   { label: "團購配送地點", placeholder: "輸入團購地點..." },
-  //   { label: "團購商品描述", placeholder: "輸入商品細節..."}
-  // ];
 
   const { memberId } = useParams();
   const [productInfo, setProductInfo] = useState({
@@ -30,44 +22,56 @@ const AddProduct = () => {
     price: '',
     group_name: '',
     detail: '',
-    cover: ''
+    cover: null,
   });
   const [submittedProductInfo, setSubmittedProductInfo] = useState(null);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProductInfo(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
+    const { name, value, files } = e.target;
+    if (name === 'cover') {
+      setProductInfo({
+        ...productInfo,
+        [name]: files[0] // Save file object directly
+      });
+      const file = files[0];
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const imageUrl = event.target.result;
+        const imgElement = document.getElementById('previewImage');
+        imgElement.src = imageUrl;
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setProductInfo({
+        ...productInfo,
+        [name]: value
+      });
+    }
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault(); // Prevent default form submission
     setSubmittedProductInfo(productInfo);
 
+    const formData = new FormData();
+    for (const key in productInfo) {
+      formData.append(key, productInfo[key]);
+    }
 
     try {
-      // 发送书籍信息到后端
-      const response = await fetch(`http://127.0.0.1:5000/api/addProduct/${memberId}`, {
+      const response = await fetch(`http://localhost:5000/api/addProduct/${memberId}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(productInfo)
+        body: formData
       });
 
       if (response.ok) {
-        // 处理成功添加书籍的逻辑
         console.log('Product added successfully!');
       } else {
-        // 处理添加书籍失败的逻辑
         console.error('Failed to add product.');
       }
     } catch (error) {
       console.error('Error adding product:', error);
     }
-
   };
 
 
@@ -150,20 +154,7 @@ const AddProduct = () => {
                   className="hidden"
                   accept="image/*"
                   name="cover"
-                  value={productInfo.cover}
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    const reader = new FileReader();
-
-                    reader.onload = (event) => {
-                      const imageUrl = event.target.result;
-                      // 將預覽的圖片顯示在<img>元素中
-                      const imgElement = document.getElementById("previewImage");
-                      imgElement.src = imageUrl;
-                    };
-
-                    reader.readAsDataURL(file);
-                  }}
+                  onChange={handleChange}
                 />
                 <img
                   id="previewImage"
@@ -197,71 +188,6 @@ const AddProduct = () => {
               {/* <p>Photo: {submittedProductInfo.cover}</p> */}
             </div>
           )}
-
-          {/* {groupBuyItems.map(({ label, placeholder }) => (
-            <React.Fragment key={label}>
-              <label htmlFor={label} className="self-start mt-7 ml-3.5">
-                {label}
-              </label>
-              <RoundedBorderDiv>
-                <input
-                  type="text"
-                  id={label}
-                  placeholder={placeholder}
-                  className="bg-transparent focus:outline-none w-full"
-                />
-              </RoundedBorderDiv>
-            </React.Fragment>
-          ))}
-          <label htmlFor="groupBuyCover" className="self-start mt-7 ml-4">
-            團購封面
-          </label>
-          <RoundedBorderDiv>
-              <label className="flex gap-2 self-center px-4 py-1 text-base font-medium leading-6 text-center whitespace-nowrap rounded-lg border border-solid shadow-sm bg-neutral-200 border-neutral-200 text-zinc-500 cursor-pointer">
-                <input
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    const reader = new FileReader();
-                    
-                    reader.onload = (event) => {
-                      const imageUrl = event.target.result;
-                      // 將預覽的圖片顯示在<img>元素中
-                      const imgElement = document.getElementById("previewImage");
-                      imgElement.src = imageUrl;
-                    };
-                    
-                    reader.readAsDataURL(file);
-                  }}
-                />
-                <img
-                  id="previewImage"
-                  loading="lazy"
-                  src="https://cdn.builder.io/api/v1/image/assets/TEMP/40b025eb622579bbffa84f6c997d90da6968594b2e92e6bf885df4d378254fd3?apiKey=96372eeb149147dbb6ed64bcf7ffb73b&"
-                  className="shrink-0 w-6 aspect-square"
-                  alt="預覽圖片"
-                />
-                <div>匯入圖片...</div>
-              </label>
-            
-          </RoundedBorderDiv> */}
-          {/* <div className="flex gap-5 justify-between self-center mt-10 w-full max-w-[200px]">
-            <div className="my-auto">是否上架商品</div>
-            <button>
-              <img
-                loading="lazy"
-                src="https://cdn.builder.io/api/v1/image/assets/TEMP/8e95eb4a42550566b10276c9c3271f8c417e8c4d9a59ed6f624a2555e0c4e003?apiKey=96372eeb149147dbb6ed64bcf7ffb73b&"
-                alt="Switch"
-                className="shrink-0 w-16 aspect-[1.89]"
-              />
-            </button>
-          </div>
-          <hr className="shrink-0 mt-6 h-px bg-black border border-black border-solid" />
-          <button className="justify-center self-center px-4 py-3 mt-9 text-base font-medium leading-6 text-center bg-yellow-400 rounded-lg border border-solid shadow-sm border-neutral-200">
-            新增此團購資訊
-          </button> */}
         </main>
       </div>
     </div>

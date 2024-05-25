@@ -848,10 +848,6 @@ def generate_unique_product_id(cur):
 @app.route('/api/addProduct/<memberId>', methods=['POST'])
 def add_product(memberId):
     try:
-        print(memberId)
-        # 从前端发送的请求中获取 JSON 数据
-        info = request.get_json()
-        print("Received info:", info)  # 添加这行以检查是否正确收到了 JSON 数据
 
         # 连接到 PostgreSQL
         psql_conn = psycopg2.connect(
@@ -863,16 +859,15 @@ def add_product(memberId):
         product_id = generate_unique_product_id(cur)
         print("Generated unique 10-digit ID:", product_id)
 
-        # 获取书籍信息中的各个字段
-        name = info.get('name')
-        tag = info.get('tag')
-        # tag = "其他"
-        print(tag)
-        amount = info.get('amount')
-        price = info.get('price')
-        group_name = info.get('group_name')
-        detail = info.get('detail')
-        cover = info.get('cover')
+        name = request.form.get('name')
+        tag = request.form.get('tag')
+        amount = request.form.get('amount')
+        price = request.form.get('price')
+        group_name = request.form.get('group_name')
+        detail = request.form.get('detail')
+        cover = request.files.get('cover')
+        # Convert cover to binary
+        cover_binary = cover.read()
 
         logistic_status = '處理中'
         notification_status = '未通知'
@@ -896,7 +891,7 @@ def add_product(memberId):
         # 加入自動生成的 Product_ID!!
         sql = "INSERT INTO GOODS (GOODS_ID, GOODS_DESCRIPTION, SELLER_ID, GROUP_ID, TAG, GOODS_NAME, UNITE_PRICE, MIN_QUANTITY, GOODS_PICTURE, logistic_status, notification_status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         data = (product_id, detail, memberId, group_id, tag, name,
-                price, amount, cover, logistic_status, notification_status)
+                price, amount, psycopg2.Binary(cover_binary), logistic_status, notification_status)
         cur.execute(sql, data)
         print("SQL executed successfully!")
         # 提交更改
