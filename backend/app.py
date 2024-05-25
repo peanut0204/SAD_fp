@@ -13,7 +13,7 @@ import uuid
 with open('db_password.txt', 'r') as file:
     db_password = file.read().strip()
 
-dbname = 'GO'
+dbname = 'GO1'
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -979,7 +979,7 @@ def get_product_info(productId):
 
             result = [
                 {
-                    "image": base64.b64encode(row[0]).decode('utf-8') if row[0] else None,
+                    "image": base64.b64encode(row[0]).decode('utf-8') if row[0] is not None else None,
                     "product_name": row[1],
                     "price": row[2],
                     "seller_name": row[3],

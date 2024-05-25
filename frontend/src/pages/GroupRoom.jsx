@@ -111,7 +111,14 @@ function GroupRoom() {
             key={product.product_id}
             style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginBottom: '20px' }}
             onClick={() => handleProductClick(product.product_id, product.seller_id)}>
-            <img src={product.image || defaultImageUrl} alt={product.product_name} style={{ width: '100%', height: 150, objectFit: 'cover', borderRadius: '10px' }} />
+            {/* <img src={product.image || defaultImageUrl} alt={product.product_name} style={{ width: '100%', height: 150, objectFit: 'cover', borderRadius: '10px' }} /> */}
+            <img src={product.image ? `data:image/jpeg;base64,${product.image}` : defaultImageUrl} style={{
+              width: '100%', // Ensure the image fits within the box
+              maxHeight: '150px', // Set a maximum height for the image
+              objectFit: 'cover',
+              borderRadius: '15px',
+              border: '3px solid black' // Add a border around the image
+            }} alt="image" />
             <div style={{ textAlign: 'left' }}>
               <h3 style={{ fontWeight: 'bold', marginTop: 10 }}>{product.product_name}</h3>
               <p>團購主：{product.seller_name}</p>
