@@ -11,7 +11,7 @@
 
 
 ## To set up database
-Create new database in PostgreSQL and restore database from ```Go2_dp.sql```.
+Create new database in PostgreSQL and restore database from ```GO_release4.sql```.
 
 Go to backend, create ```db_password.txt``` and write your password in the file.
 
