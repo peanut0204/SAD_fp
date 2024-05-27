@@ -78,16 +78,16 @@ and the server would runs on port http://localhost:5000/
 <i>The CORS policy is dealt by using vite proxy</i>
 
 ## Example
-進入「揪團 GO」平台時，一開始是登入畫面。
+進入「揪團 GO」平台時，一開始是登入畫面。  
 ![Login Page](./screenshot/1_login.png)
 
-按下註冊按鈕，在註冊畫面進行註冊。
+按下註冊按鈕，在註冊畫面進行註冊。  
 ![Register Page](./screenshot/2_register.png)
 
-接下來登入後會自動導向至 SearchFood Page，即可開始透過搜尋團購物品或地點來探索「揪團 GO」平台。
+接下來登入後會自動導向至 SearchFood Page，即可開始透過搜尋團購物品或地點來探索「揪團 GO」平台。  
 ![Search Food Page](./screenshot/3_searchFood.png)
 
-若您希望成為賣家，可以點擊左方三條橫線的選單列進入「建立團購群」或「賣家工作室」畫面，開始使用賣家功能。
+若您希望成為賣家，可以點擊左方三條橫線的選單列進入「建立團購群」或「賣家工作室」畫面，開始使用賣家功能。  
 ![Seller Office Page](./screenshot/4_sellerOffice.png)
 
 以下提供兩組帳密讓大家測試功能。
