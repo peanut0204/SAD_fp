@@ -20,6 +20,10 @@ Change database name in ```app.py```
 dbname = <your database name>
 ```
 
+## To start the LINE Bot
+
+Please refer to the readme file in the folder "linebot"
+
 ## To start the Website
 
 
@@ -77,6 +81,14 @@ and the server would runs on port http://localhost:5000/
 
 <i>The CORS policy is dealt by using vite proxy</i>
 
+以下提供兩組帳密讓大家測試功能。
+
+| Role | Account | Password |
+| --- | --- | --- |
+| Buyer | Buffett@gmail.com | Gorge0312 |
+| Seller | seller1@gmail.com.tw | og92kk11 |
+
+
 ## Example
 進入「揪團 GO」平台時，一開始是登入畫面。  
 ![Login Page](./screenshot/1_login.png)
@@ -90,11 +102,4 @@ and the server would runs on port http://localhost:5000/
 若您希望成為賣家，可以點擊左方三條橫線的選單列進入「建立團購群」或「賣家工作室」畫面，開始使用賣家功能。  
 ![Seller Office Page](./screenshot/4_sellerOffice.png)
 
-以下提供兩組帳密讓大家測試功能。
 
-| Role | Account | Password |
-| --- | --- | --- |
-| Buyer | Buffett@gmail.com | Gorge0312 |
-| Seller | seller1@gmail.com.tw | og92kk11 |
-
-## To start the LINE Bot
