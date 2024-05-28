@@ -1,0 +1,5 @@
+Flask==2.0.3
+line-bot-sdk==2.0.1
+apscheduler==3.8.1
+psycopg2-binary==2.9.3
+shortuuid==1.0.8
